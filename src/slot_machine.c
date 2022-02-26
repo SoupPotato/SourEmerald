@@ -31,60 +31,20 @@
 #define SLOTMACHINE_GFX_TILES 233
 #define MAX_BET 3
 
-#define SYMBOLS_PER_REEL   21
-#define REEL_SYMBOL_HEIGHT 24
-#define REEL_HEIGHT        (SYMBOLS_PER_REEL * REEL_SYMBOL_HEIGHT)
+#define SYMBOLS_PER_REEL      21
+#define REEL_SYMBOL_HEIGHT    24
 
-#define REELTIME_SYMBOLS       6
-#define REELTIME_SYMBOL_HEIGHT 20
-#define REELTIME_REEL_HEIGHT   (REELTIME_SYMBOLS * REELTIME_SYMBOL_HEIGHT)
-
-// There are three categories of biases: 7's, ReelTime, Regular
-//  - 7's: BIAS_STRAIGHT_7, BIAS_MIXED_7
-//  - ReelTime: BIAS_REELTIME
-//  - Regular: everything else
-//
-// The 7's and ReelTime biases can be grouped together as 'Special' biases.
-//
-// There can be at most two biases at a time. If there are two, one bias will be
-// ReelTime and the other will be one of the Regular biases.
-//
-// A new bias is drawn every round, except during ReelTime. Bias towards 7's
-// persists across rounds until you match 7's. All other biases are reset after
-// the round.
-#define BIAS_REPLAY     (1 << 0)
-#define BIAS_CHERRY     (1 << 1)
-#define BIAS_LOTAD      (1 << 2)
-#define BIAS_AZURILL    (1 << 3)
-#define BIAS_POWER      (1 << 4)
-#define BIAS_REELTIME   (1 << 5)
-#define BIAS_MIXED_7    (1 << 6)
-#define BIAS_STRAIGHT_7 (1 << 7)
-
-#define BIAS_7       (BIAS_STRAIGHT_7 | BIAS_MIXED_7)
-#define BIAS_SPECIAL (BIAS_7 | BIAS_REELTIME)
-#define BIAS_REGULAR (BIAS_REPLAY | BIAS_CHERRY | BIAS_LOATAD | BIAS_AZURILL | BIAS_POWER)
-
-// The slot machine will try to manipulate the outcome by adding up to 4 extra
-// turns to the reel after you press stop.
-//
-// The only exception is when it is stopping the third reel and it has decided
-// you will lose. In this case, it adds as many turns as necessary to prevent a
-// match.
-#define MAX_EXTRA_TURNS 4
+// Lucky Flags
+#define LUCKY_BIAS_REPLAY    (1 << 0)
+#define LUCKY_BIAS_CHERRY    (1 << 1)
+#define LUCKY_BIAS_LOTAD     (1 << 2)
+#define LUCKY_BIAS_AZURILL   (1 << 3)
+#define LUCKY_BIAS_POWER     (1 << 4)
+#define LUCKY_BIAS_REELTIME  (1 << 5)
+#define LUCKY_BIAS_MIXED_777 (1 << 6)
+#define LUCKY_BIAS_777       (1 << 7)
 
 enum {
-    SYMBOL_7_RED,
-    SYMBOL_7_BLUE,
-    SYMBOL_AZURILL,
-    SYMBOL_LOTAD,
-    SYMBOL_CHERRY,
-    SYMBOL_POWER,
-    SYMBOL_REPLAY,
-};
-
-enum
-{
     GFXTAG_7_RED,
     GFXTAG_7_BLUE,
     GFXTAG_AZURILL,
@@ -112,10 +72,6 @@ enum
 #define GFXTAG_SYMBOLS_START (GFXTAG_7_RED)
 #define GFXTAG_NUMBERS_START (GFXTAG_NUM_0)
 
-#define REEL_NORMAL_SPEED  8
-#define REEL_HALF_SPEED    4
-#define REEL_QUARTER_SPEED 2
-
 enum {
     PALTAG_REEL,
     PALTAG_REEL_TIME_PIKACHU,
@@ -128,16 +84,16 @@ enum {
 };
 
 enum {
-    MATCH_CHERRY,        // Cherry in center of first reel
-    MATCH_TOPBOT_CHERRY, // Cherry in top/bottom of first reel
-    MATCH_REPLAY,
-    MATCH_LOTAD,
-    MATCH_AZURILL,
-    MATCH_POWER,
-    MATCH_MIXED_7,       // First two 7's are same color; last is other color
-    MATCH_RED_7,
-    MATCH_BLUE_7,
-    MATCH_NONE,
+    MATCHED_1CHERRY,
+    MATCHED_2CHERRY,
+    MATCHED_REPLAY,
+    MATCHED_LOTAD,
+    MATCHED_AZURILL,
+    MATCHED_POWER,
+    MATCHED_777_MIXED,
+    MATCHED_777_RED,
+    MATCHED_777_BLUE,
+    MATCHED_NONE,
 };
 
 enum {
@@ -157,78 +113,43 @@ enum {
 };
 
 enum {
-    SLOTTASK_UNFADE,
-    SLOTTASK_WAIT_FADE,
-    SLOTTASK_READY_NEW_SPIN,
-    SLOTTASK_READY_NEW_RT_SPIN,
-    SLOTTASK_ASK_INSERT_BET,
-    SLOTTASK_BET_INPUT,
-    SLOTTASK_MSG_NEED_3_COINS,
-    SLOTTASK_WAIT_MSG_NEED_3_COINS,
-    SLOTTASK_WAIT_INFO_BOX,
-    SLOTTASK_START_SPIN,
-    SLOTTASK_START_RT_SPIN,
-    SLOTTASK_RESET_BIAS_FAILURE,
-    SLOTTASK_WAIT_REEL_STOP,
-    SLOTTASK_WAIT_ALL_REELS_STOP,
-    SLOTTASK_CHECK_MATCHES,
-    SLOTTASK_WAIT_PAYOUT,
-    SLOTTASK_END_PAYOUT,
-    SLOTTASK_MATCHED_POWER,
-    SLOTTASK_WAIT_RT_ANIM,
-    SLOTTASK_RESET_BET_TILES,
-    SLOTTASK_NO_MATCHES,
-    SLOTTASK_ASK_QUIT,
-    SLOTTASK_HANDLE_QUIT_INPUT,
-    SLOTTASK_MSG_MAX_COINS,
-    SLOTTASK_WAIT_MSG_MAX_COINS,
-    SLOTTASK_MSG_NO_MORE_COINS,
-    SLOTTASK_WAIT_MSG_NO_MORE_COINS,
-    SLOTTASK_END,
-    SLOTTASK_FREE,
-};
-enum
-{
-    PAYOUT_TASK_INIT,
-    PAYOUT_TASK_GIVE_PAYOUT,
-    PAYOUT_TASK_FREE,
+    SLOT_ACTION_UNFADE,
+    SLOT_ACTION_WAIT_FADE,
+    SLOT_ACTION_READY_NEW_SPIN,
+    SLOT_ACTION_READY_NEW_RT_SPIN,
+    SLOT_ACTION_ASK_INSERT_BET,
+    SLOT_ACTION_BET_INPUT,
+    SLOT_ACTION_MSG_NEED_3_COINS,
+    SLOT_ACTION_WAIT_MSG_NEED_3_COINS,
+    SLOT_ACTION_WAIT_INFO_BOX,
+    SLOT_ACTION_START_SPIN,
+    SLOT_ACTION_START_RT_SPIN,
+    SLOT_ACTION_SET_LUCKY_SPINS,
+    SLOT_ACTION_AWAIT_REEL_STOP,
+    SLOT_ACTION_AWAIT_ALL_REELS_STOP,
+    SLOT_ACTION_CHECK_MATCHES,
+    SLOT_ACTION_WAIT_PAYOUT,
+    SLOT_ACTION_END_PAYOUT,
+    SLOT_ACTION_MATCHED_POWER,
+    SLOT_ACTION_WAIT_RT_ANIM,
+    SLOT_ACTION_RESET_BET_TILES,
+    SLOT_ACTION_NO_MATCHES,
+    SLOT_ACTION_ASK_QUIT,
+    SLOT_ACTION_HANDLE_QUIT_INPUT,
+    SLOT_ACTION_MSG_MAX_COINS,
+    SLOT_ACTION_WAIT_MSG_MAX_COINS,
+    SLOT_ACTION_MSG_NO_MORE_COINS,
+    SLOT_ACTION_WAIT_MSG_NO_MORE_COINS,
+    SLOT_ACTION_END,
+    SLOT_ACTION_FREE,
 };
 
 enum {
-    REEL_TASK_STILL,
-    REEL_TASK_SPIN,
-    REEL_TASK_DECIDE_STOP,
-    REEL_TASK_STOP_MOVE,
-    REEL_TASK_STOP_SHAKE,
-};
-
-enum {
-    PIKABOLT_TASK_IDLE,
-    PIKABOLT_TASK_ADD_BOLT,
-    PIKABOLT_TASK_WAIT_ANIM,
-    PIKABOLT_TASK_CLEAR_ALL,
-};
-
-enum {
-    RT_TASK_INIT,
-    RT_TASK_WINDOW_ENTER,
-    RT_TASK_WAIT_START_PIKA,
-    RT_TASK_PIKA_SPEEDUP1,
-    RT_TASK_PIKA_SPEEDUP2,
-    RT_TASK_WAIT_REEL,
-    RT_TASK_CHECK_EXPLODE,
-    RT_TASK_LAND,
-    RT_TASK_PIKA_REACT,
-    RT_TASK_WAIT_CLEAR_POWER,
-    RT_TASK_CLOSE_WINDOW_SUCCESS,
-    RT_TASK_DESTROY_SPRITES,
-    RT_TASK_SET_REEL_SPEED,
-    RT_TASK_END_SUCCESS,
-    RT_TASK_EXPLODE,
-    RT_TASK_WAIT_EXPLODE,
-    RT_TASK_WAIT_SMOKE,
-    RT_TASK_CLOSE_WINDOW_FAILURE,
-    RT_TASK_END_FAILURE,
+    REEL_ACTION_STILL,
+    REEL_ACTION_SPIN,
+    REEL_ACTION_STOP,
+    REEL_ACTION_STOP_MOVE,
+    REEL_ACTION_STOP_SHAKE,
 };
 
 #define DIG_SPRITE_DUMMY {255, 0, 0}
@@ -314,74 +235,29 @@ enum {
     DIG_DISPLAY_BONUS_BIG
 };
 
-
-// How ReelTime works
-// ==================
-// Entering ReelTime:
-//  - If the bias you draw at the start of the round is BIAS_REELTIME, the
-//    ReelTime lottery begins.
-//  - At the start of the lottery, the game selects how many ReelTime spins you
-//    will get, based on how many Power bolts you've collected and whether it
-//    is a lucky game.
-//  - The lottery machine rolls until it lands on the selected number. If it
-//    selected 0 spins, the lottery machine will mostly likely explode before
-//    landing on 0.
-//  - If you win:
-//     - You receive the selected number of ReelTime spins
-//     - You lose all the Power bolts you've collected thus far
-//     - The lottery window closes and ReelTime officially begins
-//
-// During ReelTime:
-//  - You still have to pay coins for bets.
-//  - The slot reels may spin slower than usual in ReelTime. The machine draws a
-//    reel speed at the beginning of each ReelTime spin. The more coins you've
-//    lost to the machine, and the more consecutive ReelTime spins you've done,
-//    the higher your chances of getting a slower reel speed.
-//  - In ReelTime, the reel stops exactly on your input. That is, it won't add
-//    extra turns to manipulate the outcome.
-//  - ReelTime ends early if you win red 7's or blue 7's.
-
-
-// SlotMachine field explanations:
-//
-// luckyGame:
-//   Determined at random when you start playing. Some events modify this:
-//    - Blue 7 match: game becomes lucky
-//    - Red 7 match: game becomes normal
-//
-//   Effectively, a lucky game inreases the odds of getting more ReelTime spins.
-//   If the game is lucky, you have a slightly higher chance of matching Power
-//   bolts (at the expense of Replays). This helps you fill your Power bolt
-//   gauge faster.
-//
-//   During ReelTime, the more Power bolts you have, the greater your chances
-//   of drawing more ReelTime spins. In a lucky game, you have greater odds of
-//   drawing high yields (3+ RT spins). You also have greater odds of drawing 0
-//   RT spins. But drawing 0 lets you keep all your Power bolts, allowing you to
-//   fill your gauge further.
 struct SlotMachine
 {
     /*0x00*/ u8 state;
     /*0x01*/ u8 machineId;
-    /*0x02*/ u8 pikaPowerBolts;
-    /*0x03*/ bool8 luckyGame;
-    /*0x04*/ u8 machineBias;
+    /*0x02*/ u8 pikaPower;
+    /*0x03*/ u8 luckyGame;
+    /*0x04*/ u8 luckyFlags;
     /*0x05*/ u8 reelTimeDraw;
-    /*0x06*/ bool8 didNotFailBias;
-    /*0x07*/ u8 biasSymbol;
-    /*0x08*/ u16 matches;
+    /*0x06*/ u8 isLuckySpin;
+    /*0x07*/ u8 biasTag;
+    /*0x08*/ u16 matchedSymbols;
     /*0x0A*/ u8 reelTimeSpinsLeft;
     /*0x0B*/ u8 reelTimeSpinsUsed;
     /*0x0C*/ s16 coins;
     /*0x0E*/ s16 payout;
-    /*0x10*/ s16 netCoinLoss; // never negative
+    /*0x10*/ s16 netCoinLoss; // coins lost to machine (but never goes below 0)
     /*0x12*/ s16 bet;
     /*0x14*/ s16 reeltimePixelOffset;
     /*0x16*/ s16 reeltimePosition;
-    /*0x18*/ s16 currentReel;
-    /*0x1A*/ s16 reelSpeed;
+    /*0x18*/ s16 currReel;
+    /*0x1A*/ s16 reelIncrement; // speed of reel
     /*0x1C*/ s16 reelPixelOffsets[NUM_REELS];
-    /*0x22*/ u16 reelShockOffsets[NUM_REELS];
+    /*0x22*/ u16 reelPixelOffsetsWhileStopping[NUM_REELS];
     /*0x28*/ s16 reelPositions[NUM_REELS];
     /*0x2E*/ s16 reelExtraTurns[NUM_REELS];
     /*0x34*/ s16 winnerRows[NUM_REELS];
@@ -423,7 +299,7 @@ static void SlotMachineSetup_InitBgsWindows(void);
 static void SlotMachineSetup_InitVRAM(void);
 static void SlotMachineSetup_InitOAM(void);
 static void SlotMachineSetup_InitGpuRegs(void);
-static void InitSlotMachine(void);
+static void SlotMachineSetup_InitSlotMachineStruct(void);
 static void SlotMachineSetup_InitPalsSpritesTasks(void);
 static void SlotMachineSetup_InitTilemaps(void);
 static void SlotMachineSetup_LoadGfxAndTilemaps(void);
@@ -432,84 +308,84 @@ static void AllocDigitalDisplayGfx(void);
 static void SetDigitalDisplayImagePtrs(void);
 static void CreateSlotMachineSprites(void);
 static void CreateGameplayTasks(void);
-static void CreateSlotMachineTasks(void);
+static void CreateSlotMachineTask(void);
 static void DestroyDigitalDisplayScene(void);
 static void Task_SlotMachine(u8);
-static bool8 SlotTask_UnfadeScreen(struct Task *);
-static bool8 SlotTask_WaitUnfade(struct Task *);
-static bool8 SlotTask_ReadyNewSpin(struct Task *);
-static bool8 SlotTask_ReadyNewReelTimeSpin(struct Task *);
-static bool8 SlotTask_AskInsertBet(struct Task *);
-static bool8 SlotTask_HandleBetInput(struct Task *);
-static bool8 SlotTask_PrintMsg_Need3Coins(struct Task *);
-static bool8 SlotTask_WaitMsg_Need3Coins(struct Task *);
-static bool8 SlotTask_WaitInfoBox(struct Task *);
-static bool8 SlotTask_StartSpin(struct Task *);
-static bool8 SlotTask_StartReelTimeSpin(struct Task *);
-static bool8 SlotTask_ResetBiasFailure(struct Task *);
-static bool8 SlotTask_WaitReelStop(struct Task *);
-static bool8 SlotTask_WaitAllReelsStop(struct Task *);
-static bool8 SlotTask_CheckMatches(struct Task *);
-static bool8 SlotTask_WaitPayout(struct Task *);
-static bool8 SlotTask_EndPayout(struct Task *);
-static bool8 SlotTask_MatchedPower(struct Task *);
-static bool8 SlotTask_WaitReelTimeAnim(struct Task *);
-static bool8 SlotTask_ResetBetTiles(struct Task *);
-static bool8 SlotTask_NoMatches(struct Task *);
-static bool8 SlotTask_AskQuit(struct Task *);
-static bool8 SlotTask_HandleQuitInput(struct Task *);
-static bool8 SlotTask_PrintMsg_MaxCoins(struct Task *);
-static bool8 SlotTask_WaitMsg_MaxCoins(struct Task *);
-static bool8 SlotTask_PrintMsg_NoMoreCoins(struct Task *);
-static bool8 SlotTask_WaitMsg_NoMoreCoins(struct Task *);
-static bool8 SlotTask_EndGame(struct Task *);
-static bool8 SlotTask_FreeDataStructures(struct Task *);
-static void DrawMachineBias(void);
-static void ResetBiasFailure(void);
-static bool8 ShouldTrySpecialBias(void);
-static u8 TrySelectBias_Special(void);
-static u16 ReelTimeSpeed(void);
-static u8 TrySelectBias_Regular(void);
+static bool8 SlotAction_UnfadeScreen(struct Task *);
+static bool8 SlotAction_WaitForUnfade(struct Task *);
+static bool8 SlotAction_ReadyNewSpin(struct Task *);
+static bool8 SlotAction_ReadyNewReelTimeSpin(struct Task *);
+static bool8 SlotAction_AskInsertBet(struct Task *);
+static bool8 SlotAction_HandleBetInput(struct Task *);
+static bool8 SlotAction_PrintMsg_Need3Coins(struct Task *);
+static bool8 SlotAction_WaitMsg_Need3Coins(struct Task *);
+static bool8 SlotAction_WaitForInfoBox(struct Task *);
+static bool8 SlotAction_StartSpin(struct Task *);
+static bool8 SlotAction_StartReelTimeSpin(struct Task *);
+static bool8 SlotAction_SetLuckySpins(struct Task *);
+static bool8 SlotAction_AwaitReelStop(struct Task *);
+static bool8 SlotAction_WaitForAllReelsToStop(struct Task *);
+static bool8 SlotAction_CheckMatches(struct Task *);
+static bool8 SlotAction_WaitForPayoutToBeAwarded(struct Task *);
+static bool8 SlotAction_EndPayout(struct Task *);
+static bool8 SlotAction_MatchedPower(struct Task *);
+static bool8 SlotAction_WaitReelTimeAnim(struct Task *);
+static bool8 SlotAction_ResetBetTiles(struct Task *);
+static bool8 SlotAction_NoMatches(struct Task *);
+static bool8 SlotAction_AskQuit(struct Task *);
+static bool8 SlotAction_HandleQuitInput(struct Task *);
+static bool8 SlotAction_PrintMsg_9999Coins(struct Task *);
+static bool8 SlotAction_WaitMsg_9999Coins(struct Task *);
+static bool8 SlotAction_PrintMsg_NoMoreCoins(struct Task *);
+static bool8 SlotAction_WaitMsg_NoMoreCoins(struct Task *);
+static bool8 SlotAction_EndGame(struct Task *);
+static bool8 SlotAction_FreeDataStructures(struct Task *);
+static void DrawLuckyFlags(void);
+static void SetLuckySpins(void);
+static bool8 IsThisRoundLucky(void);
+static u8 AttemptsAtLuckyFlags_Top3(void);
+static u16 SlowReelSpeed(void);
+static u8 AttemptsAtLuckyFlags_NotTop3(void);
 static void CheckMatch(void);
 static void CheckMatch_CenterRow(void);
 static void CheckMatch_TopAndBottom(void);
 static void CheckMatch_Diagonals(void);
 static u8 GetMatchFromSymbols(u8, u8, u8);
 static void AwardPayout(void);
-static void Task_Payout(u8);
-static bool8 IsFinalTask_Task_Payout(void);
-static bool8 PayoutTask_Init(struct Task *);
-static bool8 PayoutTask_GivePayout(struct Task *);
-static bool8 PayoutTask_Free(struct Task *);
-static u8 GetSymbolAtRest(u8, s16);
-static void CreateReelTasks(void);
+static void RunAwardPayoutActions(u8);
+static bool8 IsFinalTask_RunAwardPayoutActions(void);
+static bool8 AwardPayoutAction0(struct Task *);
+static bool8 AwardPayoutAction_GivePayoutToPlayer(struct Task *);
+static bool8 AwardPayoutAction_FreeTask(struct Task *);
+static u8 GetTagAtRest(u8, s16);
+static void CreateSlotReelTasks(void);
 static void SpinSlotReel(u8);
 static void StopSlotReel(u8);
 static bool8 IsSlotReelMoving(u8);
-static void Task_Reel(u8);
-static bool8 ReelTask_StayStill(struct Task *);
-static bool8 ReelTask_Spin(struct Task *);
-static bool8 ReelTask_DecideStop(struct Task *);
-static bool8 ReelTask_MoveToStop(struct Task *);
-static bool8 ReelTask_ShakingStop(struct Task *);
-static bool8 DecideStop_Bias_Reel1(void);
-static bool8 DecideStop_Bias_Reel1_Bet1(u8, u8);
-static bool8 DecideStop_Bias_Reel1_Bet2or3(u8, u8);
-static bool8 DecideStop_Bias_Reel2(void);
-static bool8 DecideStop_Bias_Reel2_Bet1or2(void);
-static bool8 DecideStop_Bias_Reel2_Bet3(void);
-static bool8 DecideStop_Bias_Reel3(void);
-static bool8 DecideStop_Bias_Reel3_Bet1or2(u8);
-static bool8 DecideStop_Bias_Reel3_Bet3(u8);
-static void DecideStop_NoBias_Reel1(void);
-static void DecideStop_NoBias_Reel2(void);
-static void DecideStop_NoBias_Reel2_Bet1(void);
-static void DecideStop_NoBias_Reel2_Bet2(void);
-static void DecideStop_NoBias_Reel2_Bet3(void);
-static void DecideStop_NoBias_Reel3(void);
-static void DecideStop_NoBias_Reel3_Bet1(void);
-static void DecideStop_NoBias_Reel3_Bet2(void);
-static void DecideStop_NoBias_Reel3_Bet3(void);
+static void Task_RunSlotReelActions(u8);
+static bool8 SlotReelAction_StayStill(struct Task *);
+static bool8 SlotReelAction_Spin(struct Task *);
+static bool8 SlotReelAction_DecideWhereToStop(struct Task *);
+static bool8 SlotReelAction_MoveToStop(struct Task *);
+static bool8 SlotReelAction_OscillatingStop(struct Task *);
+static bool8 DecideReelTurns_BiasTag_Reel1(void);
+static bool8 DecideReelTurns_BiasTag_Reel1_Bet1(u8, u8);
+static bool8 DecideReelTurns_BiasTag_Reel1_Bet2or3(u8, u8);
+static bool8 DecideReelTurns_BiasTag_Reel2(void);
+static bool8 DecideReelTurns_BiasTag_Reel2_Bet1or2(void);
+static bool8 DecideReelTurns_BiasTag_Reel2_Bet3(void);
+static bool8 DecideReelTurns_BiasTag_Reel3(void);
+static bool8 DecideReelTurns_BiasTag_Reel3_Bet1or2(u8);
+static bool8 DecideReelTurns_BiasTag_Reel3_Bet3(u8);
+static void DecideReelTurns_NoBiasTag_Reel1(void);
+static void DecideReelTurns_NoBiasTag_Reel2(void);
+static void DecideReelTurns_NoBiasTag_Reel2_Bet1(void);
+static void DecideReelTurns_NoBiasTag_Reel2_Bet2(void);
+static void DecideReelTurns_NoBiasTag_Reel2_Bet3(void);
+static void DecideReelTurns_NoBiasTag_Reel3(void);
+static void DecideReelTurns_NoBiasTag_Reel3_Bet1(void);
+static void DecideReelTurns_NoBiasTag_Reel3_Bet2(void);
+static void DecideReelTurns_NoBiasTag_Reel3_Bet3(void);
 static void PressStopReelButton(u8);
 static void Task_PressStopReelButton(u8);
 static void LightenBetTiles(u8);
@@ -551,7 +427,7 @@ static void ReelTime_PikachuReact(struct Task *);
 static void ReelTime_WaitClearPikaPower(struct Task *);
 static void ReelTime_CloseWindow(struct Task *);
 static void ReelTime_DestroySprites(struct Task *);
-static void ReelTime_SetReelSpeed(struct Task *);
+static void ReelTime_SetReelIncrement(struct Task *);
 static void ReelTime_EndSuccess(struct Task *);
 static void ReelTime_ExplodeMachine(struct Task *);
 static void ReelTime_WaitExplode(struct Task *);
@@ -561,11 +437,11 @@ static void LoadReelTimeWindowTilemap(s16, s16);
 static void ClearReelTimeWindowTilemap(s16);
 static void OpenInfoBox(u8);
 static bool8 IsInfoBoxClosed(void);
-static void Task_InfoBox(u8 );
+static void RunInfoBoxActions(u8 );
 static void InfoBox_FadeIn(struct Task *);
-static void InfoBox_WaitFade(struct Task *);
+static void InfoBox_WaitForFade(struct Task *);
 static void InfoBox_DrawWindow(struct Task *);
-static void InfoBox_WaitInput(struct Task *);
+static void InfoBox_AwaitPlayerInput(struct Task *);
 static void InfoBox_AddText(struct Task *);
 static void InfoBox_LoadPikaPowerMeter(struct Task *);
 static void InfoBox_LoadSlotMachineTilemap(struct Task *);
@@ -681,10 +557,10 @@ static struct SpriteFrameImage *sImageTables_DigitalDisplay[NUM_DIG_DISPLAY_SPRI
 // Const rom data.
 static const struct DigitalDisplaySprite *const sDigitalDisplayScenes[];
 static const u16 sUnkPalette[];
-static const u8 sSpecialDrawOdds[NUM_SLOT_MACHINE_IDS][MAX_BET];
-static const u8 sBiasSymbols[];
-static const u16 sBiasesSpecial[3];
-static const u16 sBiasesRegular[5];
+static const u8 sLuckyRoundProbabilities[NUM_SLOT_MACHINE_IDS][MAX_BET];
+static const u8 sBiasTags[];
+static const u16 sLuckyFlagSettings_Top3[3];
+static const u16 sLuckyFlagSettings_NotTop3[5];
 static const s16 sDigitalDisplay_SpriteCoords[][2];
 static const SpriteCallback sDigitalDisplay_SpriteCallbacks[];
 static const struct SpriteTemplate *const sSpriteTemplates_DigitalDisplay[NUM_DIG_DISPLAY_SPRITES];
@@ -696,8 +572,8 @@ static const struct SpriteTemplate sSpriteTemplate_ReelTimeExplosion;
 static const struct SpriteTemplate sSpriteTemplate_ReelTimePikachuAura;
 static const u16 sReelTimeExplodeProbability[];
 static const u16 *const sPokeballShiningPalTable[];
-static const u16 sReelTimeSpeed_Probabilities[][2];
-static const u16 sQuarterSpeed_ProbabilityBoost[];
+static const u16 sReelIncrementTable[][2];
+static const u16 sReelTimeBonusIncrementTable[];
 static const u16 sSlotMatchFlags[];
 static const u16 sSlotPayouts[];
 static const u8 *const sReelBackground_Tilemap;
@@ -706,13 +582,13 @@ static const struct SpriteSheet sSlotMachineSpriteSheets[22];
 static const struct SpritePalette sSlotMachineSpritePalettes[];
 static const u16 *const sDigitalDisplay_Pal;
 static const s16 sInitialReelPositions[NUM_REELS][2];
-static const u8 sBiasProbabilities_Special[][NUM_SLOT_MACHINE_IDS];
-static const u8 sBiasProbabilities_Regular[][NUM_SLOT_MACHINE_IDS];
-static const u8 sReelTimeProbabilities_NormalGame[][17];
+static const u8 sLuckyFlagProbabilities_Top3[][NUM_SLOT_MACHINE_IDS];
+static const u8 sLuckyFlagProbabilities_NotTop3[][NUM_SLOT_MACHINE_IDS];
+static const u8 sReeltimeProbabilities_UnluckyGame[][17];
 static const u8 sReelTimeProbabilities_LuckyGame[][17];
-static const u8 sSymbolToMatch[];
-static const u8 sReelTimeSymbols[];
-static const u8 sReelSymbols[NUM_REELS][SYMBOLS_PER_REEL];
+static const u8 sSymToMatch[];
+static const u8 sReelTimeTags[];
+static const u8 sReelSymbolTileTags[NUM_REELS][SYMBOLS_PER_REEL];
 static const u16 *const sLitMatchLinePalTable[NUM_MATCH_LINES];
 static const u16 *const sDarkMatchLinePalTable[NUM_MATCH_LINES];
 static const u8 sMatchLinePalOffsets[NUM_MATCH_LINES];
@@ -808,131 +684,123 @@ static const struct WindowTemplate sWindowTemplate_InfoBox =
 
 static const u8 sColors_ReeltimeHelp[] = {TEXT_COLOR_LIGHT_GRAY, TEXT_COLOR_WHITE, TEXT_COLOR_DARK_GRAY};
 
-static bool8 (*const sSlotTasks[])(struct Task *task) =
+static bool8 (*const sSlotActions[])(struct Task *task) =
 {
-    [SLOTTASK_UNFADE]                 = SlotTask_UnfadeScreen,
-    [SLOTTASK_WAIT_FADE]              = SlotTask_WaitUnfade,
-    [SLOTTASK_READY_NEW_SPIN]         = SlotTask_ReadyNewSpin,
-    [SLOTTASK_READY_NEW_RT_SPIN]      = SlotTask_ReadyNewReelTimeSpin,
-    [SLOTTASK_ASK_INSERT_BET]         = SlotTask_AskInsertBet,
-    [SLOTTASK_BET_INPUT]              = SlotTask_HandleBetInput,
-    [SLOTTASK_MSG_NEED_3_COINS]       = SlotTask_PrintMsg_Need3Coins,
-    [SLOTTASK_WAIT_MSG_NEED_3_COINS]  = SlotTask_WaitMsg_Need3Coins,
-    [SLOTTASK_WAIT_INFO_BOX]          = SlotTask_WaitInfoBox,
-    [SLOTTASK_START_SPIN]             = SlotTask_StartSpin,
-    [SLOTTASK_START_RT_SPIN]          = SlotTask_StartReelTimeSpin,
-    [SLOTTASK_RESET_BIAS_FAILURE]     = SlotTask_ResetBiasFailure,
-    [SLOTTASK_WAIT_REEL_STOP]         = SlotTask_WaitReelStop,
-    [SLOTTASK_WAIT_ALL_REELS_STOP]    = SlotTask_WaitAllReelsStop,
-    [SLOTTASK_CHECK_MATCHES]          = SlotTask_CheckMatches,
-    [SLOTTASK_WAIT_PAYOUT]            = SlotTask_WaitPayout,
-    [SLOTTASK_END_PAYOUT]             = SlotTask_EndPayout,
-    [SLOTTASK_MATCHED_POWER]          = SlotTask_MatchedPower,
-    [SLOTTASK_WAIT_RT_ANIM]           = SlotTask_WaitReelTimeAnim,
-    [SLOTTASK_RESET_BET_TILES]        = SlotTask_ResetBetTiles,
-    [SLOTTASK_NO_MATCHES]             = SlotTask_NoMatches,
-    [SLOTTASK_ASK_QUIT]               = SlotTask_AskQuit,
-    [SLOTTASK_HANDLE_QUIT_INPUT]      = SlotTask_HandleQuitInput,
-    [SLOTTASK_MSG_MAX_COINS]          = SlotTask_PrintMsg_MaxCoins,
-    [SLOTTASK_WAIT_MSG_MAX_COINS]     = SlotTask_WaitMsg_MaxCoins,
-    [SLOTTASK_MSG_NO_MORE_COINS]      = SlotTask_PrintMsg_NoMoreCoins,
-    [SLOTTASK_WAIT_MSG_NO_MORE_COINS] = SlotTask_WaitMsg_NoMoreCoins,
-    [SLOTTASK_END]                    = SlotTask_EndGame,
-    [SLOTTASK_FREE]                   = SlotTask_FreeDataStructures,
+    [SLOT_ACTION_UNFADE]                 = SlotAction_UnfadeScreen,
+    [SLOT_ACTION_WAIT_FADE]              = SlotAction_WaitForUnfade,
+    [SLOT_ACTION_READY_NEW_SPIN]         = SlotAction_ReadyNewSpin,
+    [SLOT_ACTION_READY_NEW_RT_SPIN]      = SlotAction_ReadyNewReelTimeSpin,
+    [SLOT_ACTION_ASK_INSERT_BET]         = SlotAction_AskInsertBet,
+    [SLOT_ACTION_BET_INPUT]              = SlotAction_HandleBetInput,
+    [SLOT_ACTION_MSG_NEED_3_COINS]       = SlotAction_PrintMsg_Need3Coins,
+    [SLOT_ACTION_WAIT_MSG_NEED_3_COINS]  = SlotAction_WaitMsg_Need3Coins,
+    [SLOT_ACTION_WAIT_INFO_BOX]          = SlotAction_WaitForInfoBox,
+    [SLOT_ACTION_START_SPIN]             = SlotAction_StartSpin,
+    [SLOT_ACTION_START_RT_SPIN]          = SlotAction_StartReelTimeSpin,
+    [SLOT_ACTION_SET_LUCKY_SPINS]        = SlotAction_SetLuckySpins,
+    [SLOT_ACTION_AWAIT_REEL_STOP]        = SlotAction_AwaitReelStop,
+    [SLOT_ACTION_AWAIT_ALL_REELS_STOP]   = SlotAction_WaitForAllReelsToStop,
+    [SLOT_ACTION_CHECK_MATCHES]          = SlotAction_CheckMatches,
+    [SLOT_ACTION_WAIT_PAYOUT]            = SlotAction_WaitForPayoutToBeAwarded,
+    [SLOT_ACTION_END_PAYOUT]             = SlotAction_EndPayout,
+    [SLOT_ACTION_MATCHED_POWER]          = SlotAction_MatchedPower,
+    [SLOT_ACTION_WAIT_RT_ANIM]           = SlotAction_WaitReelTimeAnim,
+    [SLOT_ACTION_RESET_BET_TILES]        = SlotAction_ResetBetTiles,
+    [SLOT_ACTION_NO_MATCHES]             = SlotAction_NoMatches,
+    [SLOT_ACTION_ASK_QUIT]               = SlotAction_AskQuit,
+    [SLOT_ACTION_HANDLE_QUIT_INPUT]      = SlotAction_HandleQuitInput,
+    [SLOT_ACTION_MSG_MAX_COINS]          = SlotAction_PrintMsg_9999Coins,
+    [SLOT_ACTION_WAIT_MSG_MAX_COINS]     = SlotAction_WaitMsg_9999Coins,
+    [SLOT_ACTION_MSG_NO_MORE_COINS]      = SlotAction_PrintMsg_NoMoreCoins,
+    [SLOT_ACTION_WAIT_MSG_NO_MORE_COINS] = SlotAction_WaitMsg_NoMoreCoins,
+    [SLOT_ACTION_END]                    = SlotAction_EndGame,
+    [SLOT_ACTION_FREE]                   = SlotAction_FreeDataStructures,
 };
 
-static bool8 (*const sPayoutTasks[])(struct Task *task) =
+static bool8 (*const sAwardPayoutActions[])(struct Task *task) =
 {
-    [PAYOUT_TASK_INIT]        = PayoutTask_Init,
-    [PAYOUT_TASK_GIVE_PAYOUT] = PayoutTask_GivePayout,
-    [PAYOUT_TASK_FREE]        = PayoutTask_Free,
+    AwardPayoutAction0,
+    AwardPayoutAction_GivePayoutToPlayer,
+    AwardPayoutAction_FreeTask
 };
 
-static bool8 (*const sReelTasks[])(struct Task *task) =
+static bool8 (*const sSlotReelActions[])(struct Task *task) =
 {
-    [REEL_TASK_STILL]        = ReelTask_StayStill,
-    [REEL_TASK_SPIN]         = ReelTask_Spin,
-    [REEL_TASK_DECIDE_STOP]  = ReelTask_DecideStop,
-    [REEL_TASK_STOP_MOVE]    = ReelTask_MoveToStop,
-    [REEL_TASK_STOP_SHAKE] = ReelTask_ShakingStop,
+    [REEL_ACTION_STILL]      = SlotReelAction_StayStill,
+    [REEL_ACTION_SPIN]       = SlotReelAction_Spin,
+    [REEL_ACTION_STOP]       = SlotReelAction_DecideWhereToStop,
+    [REEL_ACTION_STOP_MOVE]  = SlotReelAction_MoveToStop,
+    [REEL_ACTION_STOP_SHAKE] = SlotReelAction_OscillatingStop
 };
 
-// Returns true if it is possible to match the bias symbol in the reel.
-//
-// Modifies the winnerRows and reelExtraTurns to indicate how to match the bias
-// symbol.
-static bool8 (*const sDecideStop_Bias[NUM_REELS])(void) =
+// returns True if a match with the biasTag is possible in that reel
+// also modifies data in sSlotMachine reel arrays to indicate how to get to the matching state
+static bool8 (*const sDecideReelTurns_BiasTag[NUM_REELS])(void) =
 {
-    DecideStop_Bias_Reel1,
-    DecideStop_Bias_Reel2,
-    DecideStop_Bias_Reel3,
+    DecideReelTurns_BiasTag_Reel1,
+    DecideReelTurns_BiasTag_Reel2,
+    DecideReelTurns_BiasTag_Reel3
 };
 
-// The player will always lose (barring a few rare circumstances that were not
-// accounted for in implementation).
-//
-// Modifies the winnerRows and reelExtraTurns to indicate how to make the player
-// lose.
-static void (*const sDecideStop_NoBias[NUM_REELS])(void) =
+static void (*const sDecideReelTurns_NoBiasTag[NUM_REELS])(void) =
 {
-    DecideStop_NoBias_Reel1,
-    DecideStop_NoBias_Reel2,
-    DecideStop_NoBias_Reel3,
+    DecideReelTurns_NoBiasTag_Reel1,
+    DecideReelTurns_NoBiasTag_Reel2,
+    DecideReelTurns_NoBiasTag_Reel3
 };
 
-// The magnitude of the shock depends on how many extra turns are added.
 static const u16 sReelStopShocks[] = {2, 4, 4, 4, 8};
 
-static bool8 (*const sDecideStop_Bias_Reel1_Bets[MAX_BET])(u8 sym1, u8 sym2) =
+static bool8 (*const sDecideReelTurns_BiasTag_Reel1_Bets[MAX_BET])(u8 tag1, u8 tag2) =
 {
-    DecideStop_Bias_Reel1_Bet1,
-    DecideStop_Bias_Reel1_Bet2or3,
-    DecideStop_Bias_Reel1_Bet2or3,
+    DecideReelTurns_BiasTag_Reel1_Bet1,
+    DecideReelTurns_BiasTag_Reel1_Bet2or3,
+    DecideReelTurns_BiasTag_Reel1_Bet2or3
 };
 
-static bool8 (*const sDecideStop_Bias_Reel2_Bets[MAX_BET])(void) =
+static bool8 (*const sDecideReelTurns_BiasTag_Reel2_Bets[MAX_BET])(void) =
 {
-    DecideStop_Bias_Reel2_Bet1or2,
-    DecideStop_Bias_Reel2_Bet1or2,
-    DecideStop_Bias_Reel2_Bet3,
+    DecideReelTurns_BiasTag_Reel2_Bet1or2,
+    DecideReelTurns_BiasTag_Reel2_Bet1or2,
+    DecideReelTurns_BiasTag_Reel2_Bet3
 };
 
-static bool8 (*const sDecideStop_Bias_Reel3_Bets[MAX_BET])(u8 biasSymbol) =
+static bool8 (*const sDecideReelTurns_BiasTag_Reel3_Bets[MAX_BET])(u8 biasTag) =
 {
-    DecideStop_Bias_Reel3_Bet1or2,
-    DecideStop_Bias_Reel3_Bet1or2,
-    DecideStop_Bias_Reel3_Bet3,
+    DecideReelTurns_BiasTag_Reel3_Bet1or2,
+    DecideReelTurns_BiasTag_Reel3_Bet1or2,
+    DecideReelTurns_BiasTag_Reel3_Bet3
 };
 
-static void (*const sDecideStop_NoBias_Reel2_Bets[MAX_BET])(void) =
+static void (*const sDecideReelTurns_NoBiasTag_Reel2_Bets[MAX_BET])(void) =
 {
-    DecideStop_NoBias_Reel2_Bet1,
-    DecideStop_NoBias_Reel2_Bet2,
-    DecideStop_NoBias_Reel2_Bet3,
+    DecideReelTurns_NoBiasTag_Reel2_Bet1,
+    DecideReelTurns_NoBiasTag_Reel2_Bet2,
+    DecideReelTurns_NoBiasTag_Reel2_Bet3
 };
 
-static void (*const sDecideStop_NoBias_Reel3_Bets[MAX_BET])(void) =
+static void (*const sDecideReelTurns_NoBiasTag_Reel3_Bets[MAX_BET])(void) =
 {
-    DecideStop_NoBias_Reel3_Bet1,
-    DecideStop_NoBias_Reel3_Bet2,
-    DecideStop_NoBias_Reel3_Bet3,
+    DecideReelTurns_NoBiasTag_Reel3_Bet1,
+    DecideReelTurns_NoBiasTag_Reel3_Bet2,
+    DecideReelTurns_NoBiasTag_Reel3_Bet3
 };
 
-static void (*const sReelStopButtonTasks[])(struct Task *task, u8 taskId) =
+static void (*const sReelStopButtonFuncs[])(struct Task *task, u8 taskId) =
 {
     StopReelButton_Press,
     StopReelButton_Wait,
-    StopReelButton_Unpress,
+    StopReelButton_Unpress
 };
 
 static const s16 sReelButtonOffsets[NUM_REELS] = {5, 10, 15};
 
-static void (*const sPikaPowerBoltTasks[])(struct Task *task) =
+static void (*const sPikaPowerBoltFuncs[])(struct Task *task) =
 {
     PikaPowerBolt_Idle,
     PikaPowerBolt_AddBolt,
     PikaPowerBolt_WaitAnim,
-    PikaPowerBolt_ClearAll,
+    PikaPowerBolt_ClearAll
 };
 
 static const u16 sPikaPowerTileTable[][2] =
@@ -942,61 +810,65 @@ static const u16 sPikaPowerTileTable[][2] =
     {0xaf, 0x7f},
 };
 
-static void (*const sReelTimeTasks[])(struct Task *task) =
+static void (*const sReelTimeActions[])(struct Task *task) =
 {
-    [RT_TASK_INIT]                 = ReelTime_Init,
-    [RT_TASK_WINDOW_ENTER]         = ReelTime_WindowEnter,
-    [RT_TASK_WAIT_START_PIKA]      = ReelTime_WaitStartPikachu,
-    [RT_TASK_PIKA_SPEEDUP1]        = ReelTime_PikachuSpeedUp1,
-    [RT_TASK_PIKA_SPEEDUP2]        = ReelTime_PikachuSpeedUp2,
-    [RT_TASK_WAIT_REEL]            = ReelTime_WaitReel,
-    [RT_TASK_CHECK_EXPLODE]        = ReelTime_CheckExplode,
-    [RT_TASK_LAND]                 = ReelTime_LandOnOutcome,
-    [RT_TASK_PIKA_REACT]           = ReelTime_PikachuReact,
-    [RT_TASK_WAIT_CLEAR_POWER]     = ReelTime_WaitClearPikaPower,
-    [RT_TASK_CLOSE_WINDOW_SUCCESS] = ReelTime_CloseWindow,
-    [RT_TASK_DESTROY_SPRITES]      = ReelTime_DestroySprites,
-    [RT_TASK_SET_REEL_SPEED]       = ReelTime_SetReelSpeed,
-    [RT_TASK_END_SUCCESS]          = ReelTime_EndSuccess,
-    [RT_TASK_EXPLODE]              = ReelTime_ExplodeMachine,
-    [RT_TASK_WAIT_EXPLODE]         = ReelTime_WaitExplode,
-    [RT_TASK_WAIT_SMOKE]           = ReelTime_WaitSmoke,
-    [RT_TASK_CLOSE_WINDOW_FAILURE] = ReelTime_CloseWindow,
-    [RT_TASK_END_FAILURE]          = ReelTime_EndFailure,
+    ReelTime_Init,
+    ReelTime_WindowEnter,
+    ReelTime_WaitStartPikachu,
+    ReelTime_PikachuSpeedUp1,
+    ReelTime_PikachuSpeedUp2,
+    ReelTime_WaitReel,
+    ReelTime_CheckExplode,
+    ReelTime_LandOnOutcome,
+    ReelTime_PikachuReact,
+    ReelTime_WaitClearPikaPower,
+    ReelTime_CloseWindow,
+    ReelTime_DestroySprites,
+    ReelTime_SetReelIncrement,
+    ReelTime_EndSuccess,
+    ReelTime_ExplodeMachine,
+    ReelTime_WaitExplode,
+    ReelTime_WaitSmoke,
+    ReelTime_CloseWindow,
+    ReelTime_EndFailure
 };
 
 static const u8 sReelTimePikachuAnimIds[] = {1, 1, 2, 2};
 static const s16 sReelTimeBoltDelays[] = {64, 48, 24, 8};
 static const s16 sPikachuAuraFlashDelays[] = {10, 8, 6, 4};
 
-static void (*const sInfoBoxTasks[])(struct Task *task) =
+static void (*const sInfoBoxActions[])(struct Task *task) =
 {
     // Go to Info screen
     InfoBox_FadeIn,
-    InfoBox_WaitFade,
+    InfoBox_WaitForFade,
     InfoBox_DrawWindow,
-    InfoBox_WaitFade,
+    InfoBox_WaitForFade,
     InfoBox_AddText,
-    InfoBox_WaitFade,
+    InfoBox_WaitForFade,
     // On Info screen
-    InfoBox_WaitInput,
+    InfoBox_AwaitPlayerInput,
     // Exit Info screen
-    InfoBox_WaitFade,
+    InfoBox_WaitForFade,
     InfoBox_LoadSlotMachineTilemap,
-    InfoBox_WaitFade,
+    InfoBox_WaitForFade,
     InfoBox_CreateDigitalDisplay,
-    InfoBox_WaitFade,
+    InfoBox_WaitForFade,
     InfoBox_LoadPikaPowerMeter,
-    InfoBox_WaitFade,
+    InfoBox_WaitForFade,
     InfoBox_FreeTask,
 };
 
 // Just idles, digital display is handled by CreateDigitalDisplayScene and sprite callbacks
-static void (*const sDigitalDisplayTasks[])(struct Task *task) =
+static void (*const sDigitalDisplayActions[])(struct Task *task) =
 {
     DigitalDisplay_Idle,
 };
 
+
+
+
+// code
 #define tState data[0]
 
 static void Task_FadeToSlotMachine(u8 taskId)
@@ -1017,12 +889,12 @@ static void Task_FadeToSlotMachine(u8 taskId)
     }
 }
 
-void PlaySlotMachine(u8 machineId, MainCallback exitCallback)
+void PlaySlotMachine(u8 slotMachineIndex, MainCallback exitCallback)
 {
     u8 taskId;
 
     sSlotMachine = AllocZeroed(sizeof(*sSlotMachine));
-    PlaySlotMachine_Internal(machineId, exitCallback);
+    PlaySlotMachine_Internal(slotMachineIndex, exitCallback);
     taskId = CreateTask(Task_FadeToSlotMachine, 0);
     gTasks[taskId].tState = 0;
 }
@@ -1035,7 +907,7 @@ static void CB2_SlotMachineSetup(void)
     {
         case 0:
             SlotMachineSetup_InitBgsWindows();
-            InitSlotMachine();
+            SlotMachineSetup_InitSlotMachineStruct();
             gMain.state++;
             break;
         case 1:
@@ -1109,30 +981,24 @@ static void SlotMachine_VBlankCB(void)
     SetGpuReg(REG_OFFSET_WINOUT, sSlotMachine->winOut);
 }
 
-#define tMachineId    data[0]
-#define tExitCallback data[1]
-
-static void PlaySlotMachine_Internal(u8 machineId, MainCallback exitCallback)
+static void PlaySlotMachine_Internal(u8 slotMachineIndex, MainCallback exitCallback)
 {
     struct Task *task = &gTasks[CreateTask(SlotMachineDummyTask, 0xFF)];
-    task->tMachineId = machineId;
-    StoreWordInTwoHalfwords(&task->tExitCallback, (intptr_t)exitCallback);
+    task->data[0] = slotMachineIndex;
+    StoreWordInTwoHalfwords(&task->data[1], (intptr_t)exitCallback);
 }
 
-// Extracts and assigns machineId and exit callback from task.
-static void SlotMachine_InitFromTask(void)
+
+static void SlotMachineInitDummyTask(void)
 {
     struct Task *task = &gTasks[FindTaskIdByFunc(SlotMachineDummyTask)];
-    sSlotMachine->machineId = task->tMachineId;
-    LoadWordFromTwoHalfwords((u16 *)&task->tExitCallback, (u32 *)&sSlotMachine->prevMainCb);
+    sSlotMachine->machineId = task->data[0];
+    LoadWordFromTwoHalfwords((u16 *)&task->data[1], (u32 *)&sSlotMachine->prevMainCb);
 }
 
 static void SlotMachineDummyTask(u8 taskId)
 {
 }
-
-#undef tMachineId
-#undef tExitCallback
 
 static void SlotMachineSetup_InitBgsWindows(void)
 {
@@ -1182,25 +1048,25 @@ static void SlotMachineSetup_InitGpuRegs(void)
     SetGpuReg(REG_OFFSET_BLDALPHA, BLDALPHA_BLEND(9, 8));
 }
 
-// Set up initial state of slot machine
-static void InitSlotMachine(void)
+// set up initial state of slot machine
+static void SlotMachineSetup_InitSlotMachineStruct(void)
 {
     u8 i;
 
-    SlotMachine_InitFromTask();
-    sSlotMachine->state = SLOTTASK_UNFADE;
-    sSlotMachine->pikaPowerBolts = 0;
+    SlotMachineInitDummyTask();  // assigns sSlotMachine->machineId, etc.
+    sSlotMachine->state = 0;
+    sSlotMachine->pikaPower = 0;
     sSlotMachine->luckyGame = Random() & 1;
-    sSlotMachine->machineBias = 0;
-    sSlotMachine->matches = 0;
+    sSlotMachine->luckyFlags = 0;
+    sSlotMachine->matchedSymbols = 0;
     sSlotMachine->reelTimeSpinsLeft = 0;
     sSlotMachine->reelTimeSpinsUsed = 0;
     sSlotMachine->coins = GetCoins();
     sSlotMachine->payout = 0;
     sSlotMachine->netCoinLoss = 0;
     sSlotMachine->bet = 0;
-    sSlotMachine->currentReel = LEFT_REEL;
-    sSlotMachine->reelSpeed = REEL_NORMAL_SPEED;
+    sSlotMachine->currReel = 0;
+    sSlotMachine->reelIncrement = 8;
     sSlotMachine->win0h = DISPLAY_WIDTH;
     sSlotMachine->win0v = DISPLAY_HEIGHT;
     sSlotMachine->winIn = WININ_WIN0_BG_ALL | WININ_WIN0_OBJ | WININ_WIN0_CLR;
@@ -1209,10 +1075,10 @@ static void InitSlotMachine(void)
 
     for (i = 0; i < NUM_REELS; i++)
     {
-        sSlotMachine->reelShockOffsets[i] = 0;
+        sSlotMachine->reelPixelOffsetsWhileStopping[i] = 0;
         sSlotMachine->reelPositions[i] = sInitialReelPositions[i][sSlotMachine->luckyGame] % SYMBOLS_PER_REEL;
-        sSlotMachine->reelPixelOffsets[i] = REEL_HEIGHT - sSlotMachine->reelPositions[i] * REEL_SYMBOL_HEIGHT;
-        sSlotMachine->reelPixelOffsets[i] %= REEL_HEIGHT;
+        sSlotMachine->reelPixelOffsets[i] = SYMBOLS_PER_REEL * REEL_SYMBOL_HEIGHT - sSlotMachine->reelPositions[i] * REEL_SYMBOL_HEIGHT;
+        sSlotMachine->reelPixelOffsets[i] %= SYMBOLS_PER_REEL * REEL_SYMBOL_HEIGHT;
     }
     AlertTVThatPlayerPlayedSlotMachine(GetCoins());
 }
@@ -1263,92 +1129,89 @@ static void CreateSlotMachineSprites(void)
 static void CreateGameplayTasks(void)
 {
     CreatePikaPowerBoltTask();
-    CreateReelTasks();
+    CreateSlotReelTasks();
     CreateDigitalDisplayTask();
-    CreateSlotMachineTasks();
+    CreateSlotMachineTask();
 }
 
-static void CreateSlotMachineTasks(void)
+static void CreateSlotMachineTask(void)
 {
     Task_SlotMachine(CreateTask(Task_SlotMachine, 0));
 }
 
+// task->data[0] is a timer
 static void Task_SlotMachine(u8 taskId)
 {
-    while (sSlotTasks[sSlotMachine->state](&gTasks[taskId]))
+    while (sSlotActions[sSlotMachine->state](&gTasks[taskId]))
         ;
 }
 
-#define tTimer  data[0]
-#define tTimer2 data[1]
-
-// SLOTTASK_UNFADE
-static bool8 SlotTask_UnfadeScreen(struct Task *task)
+// SLOT_ACTION_UNFADE
+static bool8 SlotAction_UnfadeScreen(struct Task *task)
 {
     BeginNormalPaletteFade(PALETTES_ALL, 0, 16, 0, RGB(0, 0, 0));
-    LoadPikaPowerMeter(sSlotMachine->pikaPowerBolts);
-    sSlotMachine->state++; // SLOTTASK_WAIT_FADE
+    LoadPikaPowerMeter(sSlotMachine->pikaPower);
+    sSlotMachine->state++; // SLOT_ACTION_WAIT_FADE
     return FALSE;
 }
 
-// SLOTTASK_WAIT_FADE
-static bool8 SlotTask_WaitUnfade(struct Task *task)
+// SLOT_ACTION_WAIT_FADE
+static bool8 SlotAction_WaitForUnfade(struct Task *task)
 {
     if (!gPaletteFade.active)
         sSlotMachine->state++;
     return FALSE;
 }
 
-// SLOTTASK_READY_NEW_SPIN
-static bool8 SlotTask_ReadyNewSpin(struct Task *task)
+// SLOT_ACTION_READY_NEW_SPIN
+static bool8 SlotAction_ReadyNewSpin(struct Task *task)
 {
     sSlotMachine->payout = 0;
     sSlotMachine->bet = 0;
-    sSlotMachine->currentReel = LEFT_REEL;
-    sSlotMachine->machineBias &= (BIAS_STRAIGHT_7 | BIAS_MIXED_7);
-    sSlotMachine->state = SLOTTASK_ASK_INSERT_BET;
+    sSlotMachine->currReel = 0;
+    sSlotMachine->luckyFlags &= (LUCKY_BIAS_777 | LUCKY_BIAS_MIXED_777);
+    sSlotMachine->state = SLOT_ACTION_ASK_INSERT_BET;
     if (sSlotMachine->coins <= 0)
     {
-        sSlotMachine->state = SLOTTASK_MSG_NO_MORE_COINS;
+        sSlotMachine->state = SLOT_ACTION_MSG_NO_MORE_COINS;
     }
     else if (sSlotMachine->reelTimeSpinsLeft)
     {
-        sSlotMachine->state = SLOTTASK_READY_NEW_RT_SPIN;
+        sSlotMachine->state = SLOT_ACTION_READY_NEW_RT_SPIN;
         CreateDigitalDisplayScene(DIG_DISPLAY_REEL_TIME);
     }
     return TRUE;
 }
 
-// SLOTTASK_READY_NEW_RT_SPIN
-static bool8 SlotTask_ReadyNewReelTimeSpin(struct Task *task)
+// SLOT_ACTION_READY_NEW_RT_SPIN
+static bool8 SlotAction_ReadyNewReelTimeSpin(struct Task *task)
 {
     if (IsDigitalDisplayAnimFinished())
-        sSlotMachine->state = SLOTTASK_ASK_INSERT_BET;
+        sSlotMachine->state = SLOT_ACTION_ASK_INSERT_BET;
     return FALSE;
 }
 
-// SLOTTASK_ASK_INSERT_BET
-static bool8 SlotTask_AskInsertBet(struct Task *task)
+// SLOT_ACTION_ASK_INSERT_BET
+static bool8 SlotAction_AskInsertBet(struct Task *task)
 {
     CreateDigitalDisplayScene(DIG_DISPLAY_INSERT_BET);
-    sSlotMachine->state = SLOTTASK_BET_INPUT;
+    sSlotMachine->state = SLOT_ACTION_BET_INPUT;
     if (sSlotMachine->coins >= MAX_COINS)
-        sSlotMachine->state = SLOTTASK_MSG_MAX_COINS;
+        sSlotMachine->state = SLOT_ACTION_MSG_MAX_COINS;
     return TRUE;
 }
 
-// SLOTTASK_BET_INPUT
-static bool8 SlotTask_HandleBetInput(struct Task *task)
+// SLOT_ACTION_BET_INPUT
+static bool8 SlotAction_HandleBetInput(struct Task *task)
 {
     s16 i;
 
     if (JOY_NEW(SELECT_BUTTON))
     {
         OpenInfoBox(DIG_DISPLAY_INSERT_BET);
-        sSlotMachine->state = SLOTTASK_WAIT_INFO_BOX;
+        sSlotMachine->state = SLOT_ACTION_WAIT_INFO_BOX;
     }
-    // Try to bet the max amount
-    else if (JOY_NEW(R_BUTTON))
+    else if (JOY_NEW(R_BUTTON))  // bet the max amount
     {
         if (sSlotMachine->coins - (MAX_BET - sSlotMachine->bet) >= 0)
         {
@@ -1356,13 +1219,12 @@ static bool8 SlotTask_HandleBetInput(struct Task *task)
                 LightenBetTiles(i);
             sSlotMachine->coins -= (MAX_BET - sSlotMachine->bet);
             sSlotMachine->bet = MAX_BET;
-            sSlotMachine->state = SLOTTASK_START_SPIN;
+            sSlotMachine->state = SLOT_ACTION_START_SPIN;
             PlaySE(SE_SHOP);
         }
-        // Not enough coins
-        else
+        else  // you didn't have enough coins to bet the max
         {
-            sSlotMachine->state = SLOTTASK_MSG_NEED_3_COINS;
+            sSlotMachine->state = SLOT_ACTION_MSG_NEED_3_COINS;
         }
     }
     else
@@ -1378,48 +1240,48 @@ static bool8 SlotTask_HandleBetInput(struct Task *task)
 
         // Maxed bet or finished betting
         if (sSlotMachine->bet >= MAX_BET || (sSlotMachine->bet != 0 && JOY_NEW(A_BUTTON)))
-            sSlotMachine->state = SLOTTASK_START_SPIN;
+            sSlotMachine->state = SLOT_ACTION_START_SPIN;
 
         // Quit prompt
         if (JOY_NEW(B_BUTTON))
-            sSlotMachine->state = SLOTTASK_ASK_QUIT;
+            sSlotMachine->state = SLOT_ACTION_ASK_QUIT;
     }
     return FALSE;
 }
 
-// SLOTTASK_MSG_NEED_3_COINS
-static bool8 SlotTask_PrintMsg_Need3Coins(struct Task *task)
+// SLOT_ACTION_NEED_3_COINS
+static bool8 SlotAction_PrintMsg_Need3Coins(struct Task *task)
 {
     DrawDialogueFrame(0, 0);
     AddTextPrinterParameterized(0, FONT_NORMAL, gText_YouDontHaveThreeCoins, 0, 1, 0, 0);
     CopyWindowToVram(0, COPYWIN_FULL);
-    sSlotMachine->state = SLOTTASK_WAIT_MSG_NEED_3_COINS;
+    sSlotMachine->state = SLOT_ACTION_WAIT_MSG_NEED_3_COINS;
     return FALSE;
 }
 
-// SLOTTASK_WAIT_MSG_NEED_3_COINS
-static bool8 SlotTask_WaitMsg_Need3Coins(struct Task *task)
+// SLOT_ACTION_WAIT_MSG_NEED_3_COINS
+static bool8 SlotAction_WaitMsg_Need3Coins(struct Task *task)
 {
     if (JOY_NEW(A_BUTTON | B_BUTTON))
     {
         ClearDialogWindowAndFrame(0, TRUE);
-        sSlotMachine->state = SLOTTASK_BET_INPUT;
+        sSlotMachine->state = SLOT_ACTION_BET_INPUT;
     }
     return FALSE;
 }
 
-// SLOTTASK_WAIT_INFO_BOX
-static bool8 SlotTask_WaitInfoBox(struct Task *task)
+// SLOT_ACTION_WAIT_INFO_BOX
+static bool8 SlotAction_WaitForInfoBox(struct Task *task)
 {
     if (IsInfoBoxClosed())
-        sSlotMachine->state = SLOTTASK_BET_INPUT;
+        sSlotMachine->state = SLOT_ACTION_BET_INPUT;
     return FALSE;
 }
 
-// SLOTTASK_START_SPIN
-static bool8 SlotTask_StartSpin(struct Task *task)
+// SLOT_ACTION_START_SPIN
+static bool8 SlotAction_StartSpin(struct Task *task)
 {
-    DrawMachineBias();
+    DrawLuckyFlags();
     DestroyDigitalDisplayScene();
 
     SpinSlotReel(LEFT_REEL);
@@ -1428,79 +1290,79 @@ static bool8 SlotTask_StartSpin(struct Task *task)
 
     IncrementDailySlotsUses();
 
-    task->tTimer = 0;
-    if (sSlotMachine->machineBias & BIAS_REELTIME)
+    task->data[0] = 0;
+    if (sSlotMachine->luckyFlags & LUCKY_BIAS_REELTIME)
     {
         BeginReelTime();
-        sSlotMachine->state = SLOTTASK_START_RT_SPIN;
+        sSlotMachine->state = SLOT_ACTION_START_RT_SPIN;
     }
     else
     {
         CreateDigitalDisplayScene(DIG_DISPLAY_STOP_REEL);
-        sSlotMachine->state = SLOTTASK_RESET_BIAS_FAILURE;
+        sSlotMachine->state = SLOT_ACTION_SET_LUCKY_SPINS;
     }
-    sSlotMachine->reelSpeed = REEL_NORMAL_SPEED;
+    sSlotMachine->reelIncrement = 8;
     if (sSlotMachine->reelTimeSpinsLeft)
-        sSlotMachine->reelSpeed = ReelTimeSpeed();
+        sSlotMachine->reelIncrement = SlowReelSpeed();
     return FALSE;
 }
 
-// SLOTTASK_START_RT_SPIN
-static bool8 SlotTask_StartReelTimeSpin(struct Task *task)
+// SLOT_ACTION_START_RT_SPIN
+static bool8 SlotAction_StartReelTimeSpin(struct Task *task)
 {
     if (IsReelTimeTaskDone())
     {
         CreateDigitalDisplayScene(DIG_DISPLAY_STOP_REEL);
-        sSlotMachine->machineBias &= ~BIAS_REELTIME;
-        sSlotMachine->state = SLOTTASK_RESET_BIAS_FAILURE;
+        sSlotMachine->luckyFlags &= ~LUCKY_BIAS_REELTIME;
+        sSlotMachine->state = SLOT_ACTION_SET_LUCKY_SPINS;
     }
     return FALSE;
 }
 
-// SLOTTASK_RESET_BIAS_FAILURE
-static bool8 SlotTask_ResetBiasFailure(struct Task *task)
+// SLOT_ACTION_SET_LUCKY_SPINS
+static bool8 SlotAction_SetLuckySpins(struct Task *task)
 {
-    if (++task->tTimer >= 30)
+    if (++task->data[0] >= 30)
     {
-        ResetBiasFailure();
-        sSlotMachine->state = SLOTTASK_WAIT_REEL_STOP;
+        SetLuckySpins();
+        sSlotMachine->state = SLOT_ACTION_AWAIT_REEL_STOP;
     }
     return FALSE;
 }
 
-// SLOTTASK_WAIT_REEL_STOP
-static bool8 SlotTask_WaitReelStop(struct Task *task)
+// SLOT_ACTION_AWAIT_REEL_STOP
+static bool8 SlotAction_AwaitReelStop(struct Task *task)
 {
     if (JOY_NEW(A_BUTTON))
     {
         PlaySE(SE_CONTEST_PLACE);
-        StopSlotReel(sSlotMachine->currentReel);
-        PressStopReelButton(sSlotMachine->currentReel);
-        sSlotMachine->state = SLOTTASK_WAIT_ALL_REELS_STOP;
+        StopSlotReel(sSlotMachine->currReel);
+        PressStopReelButton(sSlotMachine->currReel);
+        sSlotMachine->state = SLOT_ACTION_AWAIT_ALL_REELS_STOP;
     }
     return FALSE;
 }
 
-// SLOTTASK_WAIT_ALL_REELS_STOP
-static bool8 SlotTask_WaitAllReelsStop(struct Task *task)
+// SLOT_ACTION_AWAIT_ALL_REELS_STOP
+static bool8 SlotAction_WaitForAllReelsToStop(struct Task *task)
 {
-    if (!IsSlotReelMoving(sSlotMachine->currentReel))
+    if (!IsSlotReelMoving(sSlotMachine->currReel))
     {
-        sSlotMachine->currentReel++;
-        sSlotMachine->state = SLOTTASK_WAIT_REEL_STOP;
-        if (sSlotMachine->currentReel >= NUM_REELS)
+        sSlotMachine->currReel++;
+        sSlotMachine->state = SLOT_ACTION_AWAIT_REEL_STOP;
+        if (sSlotMachine->currReel >= NUM_REELS)
         {
-            sSlotMachine->state = SLOTTASK_CHECK_MATCHES;
+            sSlotMachine->state = SLOT_ACTION_CHECK_MATCHES;
         }
         return TRUE;
     }
     return FALSE;
 }
 
-// SLOTTASK_CHECK_MATCHES
-static bool8 SlotTask_CheckMatches(struct Task *task)
+// SLOT_ACTION_CHECK_MATCHES
+static bool8 SlotAction_CheckMatches(struct Task *task)
 {
-    sSlotMachine->machineBias &= (BIAS_STRAIGHT_7 | BIAS_MIXED_7);
+    sSlotMachine->luckyFlags &= (LUCKY_BIAS_777 | LUCKY_BIAS_MIXED_777);
     CheckMatch();
     if (sSlotMachine->reelTimeSpinsLeft)
     {
@@ -1508,21 +1370,21 @@ static bool8 SlotTask_CheckMatches(struct Task *task)
         sSlotMachine->reelTimeSpinsUsed++;
     }
 
-    if (sSlotMachine->matches)
+    if (sSlotMachine->matchedSymbols)
     {
-        sSlotMachine->state = SLOTTASK_WAIT_PAYOUT;
+        sSlotMachine->state = SLOT_ACTION_WAIT_PAYOUT;
         AwardPayout();
         FlashSlotMachineLights();
         if ((sSlotMachine->netCoinLoss -= sSlotMachine->payout) < 0)
         {
             sSlotMachine->netCoinLoss = 0;
         }
-        if (sSlotMachine->matches & ((1 << MATCH_BLUE_7) | (1 << MATCH_RED_7)))
+        if (sSlotMachine->matchedSymbols & ((1 << MATCHED_777_BLUE) | (1 << MATCHED_777_RED)))
         {
             PlayFanfare(MUS_SLOTS_JACKPOT);
             CreateDigitalDisplayScene(DIG_DISPLAY_BONUS_BIG);
         }
-        else if (sSlotMachine->matches & (1 << MATCH_MIXED_7))
+        else if (sSlotMachine->matchedSymbols & (1 << MATCHED_777_MIXED))
         {
             PlayFanfare(MUS_SLOTS_JACKPOT);
             CreateDigitalDisplayScene(DIG_DISPLAY_BONUS_REG);
@@ -1532,212 +1394,212 @@ static bool8 SlotTask_CheckMatches(struct Task *task)
             PlayFanfare(MUS_SLOTS_WIN);
             CreateDigitalDisplayScene(DIG_DISPLAY_WIN);
         }
-
-        if (sSlotMachine->matches & ((1 << MATCH_MIXED_7) | (1 << MATCH_BLUE_7) | (1 << MATCH_RED_7)))
+        // if you matched 777...
+        if (sSlotMachine->matchedSymbols & ((1 << MATCHED_777_MIXED) | (1 << MATCHED_777_BLUE) | (1 << MATCHED_777_RED)))
         {
-            sSlotMachine->machineBias &= ~(BIAS_STRAIGHT_7 | BIAS_MIXED_7);
-            if (sSlotMachine->matches & ((1 << MATCH_BLUE_7) | (1 << MATCH_RED_7)))
+            sSlotMachine->luckyFlags &= ~(LUCKY_BIAS_777 | LUCKY_BIAS_MIXED_777);
+            if (sSlotMachine->matchedSymbols & ((1 << MATCHED_777_BLUE) | (1 << MATCHED_777_RED)))
             {
-                // ReelTime ends if it was ongoing
                 sSlotMachine->reelTimeSpinsLeft = 0;
                 sSlotMachine->reelTimeSpinsUsed = 0;
                 sSlotMachine->luckyGame = FALSE;
-                if (sSlotMachine->matches & (1 << MATCH_BLUE_7))
+                if (sSlotMachine->matchedSymbols & (1 << MATCHED_777_BLUE))
+                    // this may be an error, but if you get blue 777, the game becomes lucky
                     sSlotMachine->luckyGame = TRUE;
             }
         }
-        if (sSlotMachine->matches & (1 << MATCH_POWER) && sSlotMachine->pikaPowerBolts < 16)
+        if (sSlotMachine->matchedSymbols & (1 << MATCHED_POWER) && sSlotMachine->pikaPower < 16)
         {
-            sSlotMachine->pikaPowerBolts++;
-            AddPikaPowerBolt(sSlotMachine->pikaPowerBolts);
+            sSlotMachine->pikaPower++;
+            AddPikaPowerBolt(sSlotMachine->pikaPower);
         }
     }
     else
     {
         CreateDigitalDisplayScene(DIG_DISPLAY_LOSE);
-        sSlotMachine->state = SLOTTASK_NO_MATCHES;
+        sSlotMachine->state = SLOT_ACTION_NO_MATCHES;
         if ((sSlotMachine->netCoinLoss += sSlotMachine->bet) > MAX_COINS)
             sSlotMachine->netCoinLoss = MAX_COINS;
     }
     return FALSE;
 }
 
-// SLOTTASK_WAIT_PAYOUT
-static bool8 SlotTask_WaitPayout(struct Task *task)
+// SLOT_ACTION_WAIT_PAYOUT
+static bool8 SlotAction_WaitForPayoutToBeAwarded(struct Task *task)
 {
-    if (IsFinalTask_Task_Payout())
-        sSlotMachine->state = SLOTTASK_END_PAYOUT;
+    if (IsFinalTask_RunAwardPayoutActions())
+        sSlotMachine->state = SLOT_ACTION_END_PAYOUT;
     return FALSE;
 }
 
-// SLOTTASK_END_PAYOUT
-static bool8 SlotTask_EndPayout(struct Task *task)
+// SLOT_ACTION_END_PAYOUT
+static bool8 SlotAction_EndPayout(struct Task *task)
 {
     if (TryStopSlotMachineLights())
     {
-        sSlotMachine->state = SLOTTASK_RESET_BET_TILES;
+        sSlotMachine->state = SLOT_ACTION_RESET_BET_TILES;
 
-        if (sSlotMachine->matches & ((1 << MATCH_RED_7) | (1 << MATCH_BLUE_7)))
+        if (sSlotMachine->matchedSymbols & ((1 << MATCHED_777_RED) | (1 << MATCHED_777_BLUE)))
             IncrementGameStat(GAME_STAT_SLOT_JACKPOTS);
 
-        if (sSlotMachine->matches & (1 << MATCH_REPLAY))
+        if (sSlotMachine->matchedSymbols & (1 << MATCHED_REPLAY))
         {
-            sSlotMachine->currentReel = LEFT_REEL;
-            sSlotMachine->state = SLOTTASK_START_SPIN;
+            sSlotMachine->currReel = 0;
+            sSlotMachine->state = SLOT_ACTION_START_SPIN;
         }
 
-        if (sSlotMachine->matches & (1 << MATCH_POWER))
-            sSlotMachine->state = SLOTTASK_MATCHED_POWER;
+        if (sSlotMachine->matchedSymbols & (1 << MATCHED_POWER))
+            sSlotMachine->state = SLOT_ACTION_MATCHED_POWER;
 
-        if (sSlotMachine->reelTimeSpinsLeft && sSlotMachine->matches & (1 << MATCH_REPLAY))
+        if (sSlotMachine->reelTimeSpinsLeft && sSlotMachine->matchedSymbols & (1 << MATCHED_REPLAY))
         {
             CreateDigitalDisplayScene(DIG_DISPLAY_REEL_TIME);
-            sSlotMachine->state = SLOTTASK_WAIT_RT_ANIM;
+            sSlotMachine->state = SLOT_ACTION_WAIT_RT_ANIM;
         }
     }
     return FALSE;
 }
 
-// SLOTTASK_MATCHED_POWER
-static bool8 SlotTask_MatchedPower(struct Task *task)
+// SLOT_ACTION_MATCHED_POWER
+static bool8 SlotAction_MatchedPower(struct Task *task)
 {
     if (!IsPikaPowerBoltAnimating())
     {
-        sSlotMachine->state = SLOTTASK_RESET_BET_TILES;
-        if (sSlotMachine->matches & (1 << MATCH_REPLAY))
+        sSlotMachine->state = SLOT_ACTION_RESET_BET_TILES;
+        if (sSlotMachine->matchedSymbols & (1 << MATCHED_REPLAY))
         {
-            sSlotMachine->state = SLOTTASK_START_SPIN;
+            sSlotMachine->state = SLOT_ACTION_START_SPIN;
             if (sSlotMachine->reelTimeSpinsLeft)
             {
                 CreateDigitalDisplayScene(DIG_DISPLAY_REEL_TIME);
-                sSlotMachine->state = SLOTTASK_WAIT_RT_ANIM;
+                sSlotMachine->state = SLOT_ACTION_WAIT_RT_ANIM;
             }
         }
     }
     return FALSE;
 }
 
-// SLOTTASK_WAIT_RT_ANIM
-static bool8 SlotTask_WaitReelTimeAnim(struct Task *task)
+// SLOT_ACTION_WAIT_RT_ANIM
+static bool8 SlotAction_WaitReelTimeAnim(struct Task *task)
 {
     if (IsDigitalDisplayAnimFinished())
     {
-        sSlotMachine->state = SLOTTASK_RESET_BET_TILES;
-        if (sSlotMachine->matches & (1 << MATCH_REPLAY))
+        sSlotMachine->state = SLOT_ACTION_RESET_BET_TILES;
+        if (sSlotMachine->matchedSymbols & (1 << MATCHED_REPLAY))
         {
-            sSlotMachine->state = SLOTTASK_START_SPIN;
+            sSlotMachine->state = SLOT_ACTION_START_SPIN;
         }
     }
     return FALSE;
 }
 
-// SLOTTASK_RESET_BET_TILES
-static bool8 SlotTask_ResetBetTiles(struct Task *task)
+// SLOT_ACTION_RESET_BET_TILES
+static bool8 SlotAction_ResetBetTiles(struct Task *task)
 {
     DarkenBetTiles(0);
     DarkenBetTiles(1);
     DarkenBetTiles(2);
-    sSlotMachine->state = SLOTTASK_READY_NEW_SPIN;
+    sSlotMachine->state = SLOT_ACTION_READY_NEW_SPIN;
     return FALSE;
 }
 
-// SLOTTASK_NO_MATCHES
-static bool8 SlotTask_NoMatches(struct Task *task)
+// SLOT_ACTION_NO_MATCHES
+static bool8 SlotAction_NoMatches(struct Task *task)
 {
-    if (++task->tTimer2 > 64)
+    if (++task->data[1] > 64)
     {
-        task->tTimer2 = 0;
-        sSlotMachine->state = SLOTTASK_RESET_BET_TILES;
+        task->data[1] = 0;
+        sSlotMachine->state = SLOT_ACTION_RESET_BET_TILES;
     }
     return FALSE;
 }
 
-// SLOTTASK_ASK_QUIT
-static bool8 SlotTask_AskQuit(struct Task *task)
+// SLOT_ACTION_ASK_QUIT
+static bool8 SlotAction_AskQuit(struct Task *task)
 {
     DrawDialogueFrame(0, 0);
     AddTextPrinterParameterized(0, FONT_NORMAL, gText_QuitTheGame, 0, 1, 0, 0);
     CopyWindowToVram(0, COPYWIN_FULL);
     CreateYesNoMenuParameterized(0x15, 7, 0x214, 0x180, 0xE, 0xF);
-    sSlotMachine->state = SLOTTASK_HANDLE_QUIT_INPUT;
+    sSlotMachine->state = SLOT_ACTION_HANDLE_QUIT_INPUT;
     return FALSE;
 }
 
-// SLOTTASK_HANDLE_QUIT_INPUT
-static bool8 SlotTask_HandleQuitInput(struct Task *task)
+// SLOT_ACTION_HANDLE_QUIT_INPUT
+static bool8 SlotAction_HandleQuitInput(struct Task *task)
 {
     s8 input = Menu_ProcessInputNoWrapClearOnChoose();
-    if (input == 0) // Chose to quit
+    if (input == 0) // player chooses to quit
     {
         ClearDialogWindowAndFrame(0, TRUE);
         DarkenBetTiles(0);
         DarkenBetTiles(1);
         DarkenBetTiles(2);
         sSlotMachine->coins += sSlotMachine->bet;
-        sSlotMachine->state = SLOTTASK_END;
+        sSlotMachine->state = SLOT_ACTION_END;
     }
-    else if (input == 1 || input == -1) // Chose not to quit
+    else if (input == 1 || input == -1) // player chooses not to quit
     {
         ClearDialogWindowAndFrame(0, TRUE);
-        sSlotMachine->state = SLOTTASK_BET_INPUT;
+        sSlotMachine->state = SLOT_ACTION_BET_INPUT;
     }
     return FALSE;
 }
 
-// SLOTTASK_MSG_MAX_COINS
-static bool8 SlotTask_PrintMsg_MaxCoins(struct Task *task)
+// SLOT_ACTION_MSG_MAX_COINS
+static bool8 SlotAction_PrintMsg_9999Coins(struct Task *task)
 {
     DrawDialogueFrame(0, 0);
     AddTextPrinterParameterized(0, FONT_NORMAL, gText_YouveGot9999Coins, 0, 1, 0, 0);
     CopyWindowToVram(0, COPYWIN_FULL);
-    sSlotMachine->state = SLOTTASK_WAIT_MSG_MAX_COINS;
+    sSlotMachine->state = SLOT_ACTION_WAIT_MSG_MAX_COINS;
     return FALSE;
 }
 
-// SLOTTASK_WAIT_MSG_MAX_COINS
-static bool8 SlotTask_WaitMsg_MaxCoins(struct Task *task)
+// SLOT_ACTION_WAIT_MSG_MAX_COINS
+static bool8 SlotAction_WaitMsg_9999Coins(struct Task *task)
 {
     if (JOY_NEW(A_BUTTON | B_BUTTON))
     {
         ClearDialogWindowAndFrame(0, TRUE);
-        sSlotMachine->state = SLOTTASK_BET_INPUT;
+        sSlotMachine->state = SLOT_ACTION_BET_INPUT;
     }
     return FALSE;
 }
 
-// SLOTTASK_MSG_NO_MORE_COINS
-static bool8 SlotTask_PrintMsg_NoMoreCoins(struct Task *task)
+// SLOT_ACTION_MSG_NO_MORE_COINS
+static bool8 SlotAction_PrintMsg_NoMoreCoins(struct Task *task)
 {
     DrawDialogueFrame(0, 0);
     AddTextPrinterParameterized(0, FONT_NORMAL, gText_YouveRunOutOfCoins, 0, 1, 0, 0);
     CopyWindowToVram(0, COPYWIN_FULL);
-    sSlotMachine->state = SLOTTASK_WAIT_MSG_NO_MORE_COINS;
+    sSlotMachine->state = SLOT_ACTION_WAIT_MSG_NO_MORE_COINS;
     return FALSE;
 }
 
-// SLOTTASK_WAIT_MSG_NO_MORE_COINS
-static bool8 SlotTask_WaitMsg_NoMoreCoins(struct Task *task)
+// SLOT_ACTION_WAIT_MSG_NO_MORE_COINS
+static bool8 SlotAction_WaitMsg_NoMoreCoins(struct Task *task)
 {
     if (JOY_NEW(A_BUTTON | B_BUTTON))
     {
         ClearDialogWindowAndFrame(0, TRUE);
-        sSlotMachine->state = SLOTTASK_END;
+        sSlotMachine->state = SLOT_ACTION_END;
     }
     return FALSE;
 }
 
-// SLOTTASK_END
-static bool8 SlotTask_EndGame(struct Task *task)
+// SLOT_ACTION_END
+static bool8 SlotAction_EndGame(struct Task *task)
 {
     SetCoins(sSlotMachine->coins);
     TryPutFindThatGamerOnAir(GetCoins());
     BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB(0, 0, 0));
-    sSlotMachine->state++; // SLOTTASK_FREE
+    sSlotMachine->state++; // SLOT_ACTION_FREE
     return FALSE;
 }
 
-// SLOTTASK_FREE
-static bool8 SlotTask_FreeDataStructures(struct Task *task)
+// SLOT_ACTION_FREE
+static bool8 SlotAction_FreeDataStructures(struct Task *task)
 {
     if (!gPaletteFade.active)
     {
@@ -1778,122 +1640,93 @@ static bool8 SlotTask_FreeDataStructures(struct Task *task)
     return FALSE;
 }
 
-# undef tTimer
-# undef tTimer2
-
-// Determine the biases for this round. There can be at most two biases, one of
-// which would need to be a ReelTime bias.
-//
-// HOW IT WORKS:
-//   If the machine is already biased toward 7's, keep this bias.
-//
-//   Otherwise, there are up to three draws. You first draw to see if you'll get
-//   to draw a Special bias. If so, then you draw for the Special bias (and can
-//   still potentially miss).
-//
-//   If you didn't get to draw a Special bias, missed a Special bias, or drew a
-//   ReelTime bias, then you can still try to draw a Regular bias.
-static void DrawMachineBias(void)
+static void DrawLuckyFlags(void)
 {
-    u8 whichBias;
+    u8 attempts;
 
     if (sSlotMachine->reelTimeSpinsLeft == 0)
     {
-        if (!(sSlotMachine->machineBias & (BIAS_STRAIGHT_7 | BIAS_MIXED_7)))
+        if (!(sSlotMachine->luckyFlags & (LUCKY_BIAS_777 | LUCKY_BIAS_MIXED_777)))
         {
-            if (ShouldTrySpecialBias())
+            if (IsThisRoundLucky())
             {
-                whichBias = TrySelectBias_Special();
-                if (whichBias != ARRAY_COUNT(sBiasesSpecial)) // A bias was selected
+                attempts = AttemptsAtLuckyFlags_Top3();
+                if (attempts != ARRAY_COUNT(sLuckyFlagSettings_Top3)) // if you found a lucky number
                 {
-                    sSlotMachine->machineBias |= sBiasesSpecial[whichBias];
-
-                    // ReelTime was not selected; don't add other biases
-                    if (whichBias != 1) return;
+                    // attempts == 1:  reelTime flag set
+                    sSlotMachine->luckyFlags |= sLuckyFlagSettings_Top3[attempts];
+                    if (attempts != 1)
+                        return;
                 }
             }
-
-            whichBias = TrySelectBias_Regular();
-            if (whichBias != ARRAY_COUNT(sBiasesRegular)) // A bias was selected
-                sSlotMachine->machineBias |= sBiasesRegular[whichBias];
+            // if it's not a lucky round or you got reel time, roll for the lower lucky flags
+            attempts = AttemptsAtLuckyFlags_NotTop3();
+            if (attempts != ARRAY_COUNT(sLuckyFlagSettings_NotTop3))  // if you found a lucky number
+                sSlotMachine->luckyFlags |= sLuckyFlagSettings_NotTop3[attempts];
         }
     }
 }
 
-// Reset `didNotFailBias` to match `machineBias`.
-static void ResetBiasFailure(void)
+static void SetLuckySpins(void)
 {
-    sSlotMachine->didNotFailBias = FALSE;
-    if (sSlotMachine->machineBias)
-        sSlotMachine->didNotFailBias = TRUE;
+    sSlotMachine->isLuckySpin = FALSE;
+    if (sSlotMachine->luckyFlags)
+        sSlotMachine->isLuckySpin = TRUE;
 }
 
-// See sBiasSymbols for each bias's corresponding symbol.
-static u8 GetBiasSymbol(u8 machineBias)
+static u8 GetBiasTag(u8 luckyFlags)
 {
     u8 i;
 
     for (i = 0; i < 8; i++)
     {
-        if (machineBias & 1)
-            return sBiasSymbols[i];
-        machineBias >>= 1;
+        if (luckyFlags & 1)
+            return sBiasTags[i];
+        luckyFlags >>= 1;
     }
     return 0;
 }
 
-// Decides whether you will be given the opportunity to draw for a Special bias.
-// Depends on your bet and the machine you're using.
-//
-// The probability of getting to draw a Special is miniscule if you don't bet 3
-// coins: barely 1% even on the luckiest machine.
-//
-// The odds increase to roughly ~5% if you bet 3 coins.
-static bool8 ShouldTrySpecialBias(void)
+// you have way more luck betting 3 coins than anything lower
+static bool8 IsThisRoundLucky(void)
 {
     u8 rval = Random();
-    if (sSpecialDrawOdds[sSlotMachine->machineId][sSlotMachine->bet - 1] > rval)
+    if (sLuckyRoundProbabilities[sSlotMachine->machineId][sSlotMachine->bet - 1] > rval)
         return TRUE;
     return FALSE;
 }
 
-// Draws for a Special bias. Note that even when you're given the opportunity to
-// draw a Special bias, you can still miss.
-//
-// On the luckiest machine, there's a 61% chance of drawing no Special bias. On
-// the unluckiest, a 73% chance.
-static u8 TrySelectBias_Special(void)
+static u8 AttemptsAtLuckyFlags_Top3(void)
 {
-    s16 whichBias;
+    s16 count;
 
-    for (whichBias = 0; whichBias < (int)ARRAY_COUNT(sBiasesSpecial); whichBias++)
+    for (count = 0; count < (int)ARRAY_COUNT(sLuckyFlagSettings_Top3); count++)
     {
         s16 rval = Random() & 0xff;
-        s16 value = sBiasProbabilities_Special[whichBias][sSlotMachine->machineId];
+        s16 value = sLuckyFlagProbabilities_Top3[count][sSlotMachine->machineId];
         if (value > rval)
             break;
     }
-    return whichBias;
+    return count;
 }
 
-static u8 TrySelectBias_Regular(void)
+static u8 AttemptsAtLuckyFlags_NotTop3(void)
 {
-    s16 whichBias;
+    s16 count;
 
-    for (whichBias = 0; whichBias < (int)ARRAY_COUNT(sBiasesRegular); whichBias++)
+    for (count = 0; count < (int)ARRAY_COUNT(sLuckyFlagSettings_NotTop3); count++)
     {
-        s16 rval = Random() & 0xff;
-        s16 value = sBiasProbabilities_Regular[whichBias][sSlotMachine->machineId];
-        
-        // Boost odds of BIAS_POWER if it's a lucky game.
-        if (whichBias == 0 && sSlotMachine->luckyGame == TRUE)
+        s16 rval = Random() & 0xff; // random byte
+        s16 value = sLuckyFlagProbabilities_NotTop3[count][sSlotMachine->machineId];
+        // make first attempt easier if it's a lucky game
+        if (count == 0 && sSlotMachine->luckyGame == TRUE)
         {
             value += 10;
             if (value > 0x100)
                 value = 0x100;
         }
-        // Reduce odds of BIAS_REPLAY if it's a lucky game
-        else if (whichBias == 4 && sSlotMachine->luckyGame == TRUE)
+        // make last attempt harder if it's a lucky game
+        else if (count == 4 && sSlotMachine->luckyGame == TRUE)
         {
             value -= 10;
             if (value < 0)
@@ -1902,60 +1735,45 @@ static u8 TrySelectBias_Regular(void)
         if (value > rval)
             break;
     }
-    return whichBias;
+    return count;
 }
 
-// Return the probability of drawing the given number of ReelTime spins.
-//
-// This depends on whether it is a lucky game and the number of Power bolts you
-// have collected.
-static u8 GetReelTimeSpinProbability(u8 spins)
+static u8 GetReelTimeProbability(u8 reelTimeDraw)
 {
     if (sSlotMachine->luckyGame == FALSE)
-        return sReelTimeProbabilities_NormalGame[spins][sSlotMachine->pikaPowerBolts];
+        return sReeltimeProbabilities_UnluckyGame[reelTimeDraw][sSlotMachine->pikaPower];
     else
-        return sReelTimeProbabilities_LuckyGame[spins][sSlotMachine->pikaPowerBolts];
+        return sReelTimeProbabilities_LuckyGame[reelTimeDraw][sSlotMachine->pikaPower];
 }
 
-// The way this is computed skews the odds much more toward drawing a 0 than
-// intended. It initially checks whether you draw a 0 (using the intended
-// probability). It then tries to draw positive values, but if these draws all
-// miss, you'll still draw a 0.
-//
-// As a result, even when the power gauge is maxed out, you still have a ~30%
-// chance of drawing 0 spins. See sReelTimeProbabilities for more details.
-//
-// Drawing a random number via a cumulative pdf would have prevented this.
-static void GetReelTimeDraw(void)
+static void GetReeltimeDraw(void)
 {
     u8 rval;
-    s16 spins;
+    s16 reelTimeDraw;
 
     sSlotMachine->reelTimeDraw = 0;
     rval = Random();
-    if (rval < GetReelTimeSpinProbability(0))
+    if (rval < GetReelTimeProbability(0))
         return;
-    for (spins = 5; spins > 0; spins--)
+    for (reelTimeDraw = 5; reelTimeDraw > 0; reelTimeDraw--)
     {
         rval = Random();
-        if (rval < GetReelTimeSpinProbability(spins))
+        if (rval < GetReelTimeProbability(reelTimeDraw))
             break;
     }
-    sSlotMachine->reelTimeDraw = spins;
+    sSlotMachine->reelTimeDraw = reelTimeDraw;
 }
 
-// Returns true if the ReelTime machine should explode. Each time we check,
-// the odds of explosion increase.
-static bool8 ShouldReelTimeMachineExplode(u16 check)
+static bool8 ShouldReelTimeMachineExplode(u16 i)
 {
     u16 rval = Random() & 0xff;
-    if (rval < sReelTimeExplodeProbability[check])
+    if (rval < sReelTimeExplodeProbability[i])
         return TRUE;
     else
         return FALSE;
 }
 
-static u16 ReelTimeSpeed(void)
+static u16 SlowReelSpeed(void)
 {
     u8 i = 0;
     u8 rval;
@@ -1968,23 +1786,20 @@ static u16 ReelTimeSpeed(void)
         i = 2;
     else if (sSlotMachine->netCoinLoss >= 150)
         i = 1;
-
     rval = Random() % 100;
-    value = sReelTimeSpeed_Probabilities[i][0];
+    value = sReelIncrementTable[i][0];
     if (rval < value)
-        return REEL_HALF_SPEED;
-
+        return 4;
     rval = Random() % 100;
-    value = sReelTimeSpeed_Probabilities[i][1] + sQuarterSpeed_ProbabilityBoost[sSlotMachine->reelTimeSpinsUsed];
+    value = sReelIncrementTable[i][1] + sReelTimeBonusIncrementTable[sSlotMachine->reelTimeSpinsUsed];
     if (rval < value)
-        return REEL_QUARTER_SPEED;
-
-    return REEL_NORMAL_SPEED;
+        return 2;
+    return 8;
 }
 
 static void CheckMatch(void)
 {
-    sSlotMachine->matches = 0;
+    sSlotMachine->matchedSymbols = 0;
     CheckMatch_CenterRow();
     if (sSlotMachine->bet > 1)
         CheckMatch_TopAndBottom();
@@ -1994,146 +1809,140 @@ static void CheckMatch(void)
 
 static void CheckMatch_CenterRow(void)
 {
-    u8 sym1, sym2, sym3, match;
+    u8 c1, c2, c3, match;
 
-    sym1 = GetSymbolAtRest(LEFT_REEL, 2);
-    sym2 = GetSymbolAtRest(MIDDLE_REEL, 2);
-    sym3 = GetSymbolAtRest(RIGHT_REEL, 2);
-    match = GetMatchFromSymbols(sym1, sym2, sym3);
-    if (match != MATCH_NONE)
+    c1 = GetTagAtRest(LEFT_REEL, 2);
+    c2 = GetTagAtRest(MIDDLE_REEL, 2);
+    c3 = GetTagAtRest(RIGHT_REEL, 2);
+    match = GetMatchFromSymbols(c1, c2, c3);
+    if (match != MATCHED_NONE)
     {
         sSlotMachine->payout += sSlotPayouts[match];
-        sSlotMachine->matches |= sSlotMatchFlags[match];
+        sSlotMachine->matchedSymbols |= sSlotMatchFlags[match];
         FlashMatchLine(MATCH_MIDDLE_ROW);
     }
 }
 
 static void CheckMatch_TopAndBottom(void)
 {
-    u8 sym1, sym2, sym3, match;
+    u8 c1, c2, c3, match;
 
-    sym1 = GetSymbolAtRest(LEFT_REEL, 1);
-    sym2 = GetSymbolAtRest(MIDDLE_REEL, 1);
-    sym3 = GetSymbolAtRest(RIGHT_REEL, 1);
-    match = GetMatchFromSymbols(sym1, sym2, sym3);
-    if (match != MATCH_NONE)
+    c1 = GetTagAtRest(LEFT_REEL, 1);
+    c2 = GetTagAtRest(MIDDLE_REEL, 1);
+    c3 = GetTagAtRest(RIGHT_REEL, 1);
+    match = GetMatchFromSymbols(c1, c2, c3);
+    if (match != MATCHED_NONE)
     {
-        if (match == MATCH_CHERRY)
-            match = MATCH_TOPBOT_CHERRY;
+        if (match == MATCHED_1CHERRY)
+            match = MATCHED_2CHERRY;
         sSlotMachine->payout += sSlotPayouts[match];
-        sSlotMachine->matches |= sSlotMatchFlags[match];
+        sSlotMachine->matchedSymbols |= sSlotMatchFlags[match];
         FlashMatchLine(MATCH_TOP_ROW);
     }
-    sym1 = GetSymbolAtRest(LEFT_REEL, 3);
-    sym2 = GetSymbolAtRest(MIDDLE_REEL, 3);
-    sym3 = GetSymbolAtRest(RIGHT_REEL, 3);
-    match = GetMatchFromSymbols(sym1, sym2, sym3);
-    if (match != MATCH_NONE)
+    c1 = GetTagAtRest(LEFT_REEL, 3);
+    c2 = GetTagAtRest(MIDDLE_REEL, 3);
+    c3 = GetTagAtRest(RIGHT_REEL, 3);
+    match = GetMatchFromSymbols(c1, c2, c3);
+    if (match != MATCHED_NONE)
     {
-        if (match == MATCH_CHERRY)
-            match = MATCH_TOPBOT_CHERRY;
+        if (match == MATCHED_1CHERRY)
+            match = MATCHED_2CHERRY;
         sSlotMachine->payout += sSlotPayouts[match];
-        sSlotMachine->matches |= sSlotMatchFlags[match];
+        sSlotMachine->matchedSymbols |= sSlotMatchFlags[match];
         FlashMatchLine(MATCH_BOTTOM_ROW);
     }
 }
 
 static void CheckMatch_Diagonals(void)
 {
-    u8 sym1, sym2, sym3, match;
+    u8 c1, c2, c3, match;
 
-    sym1 = GetSymbolAtRest(LEFT_REEL, 1);
-    sym2 = GetSymbolAtRest(MIDDLE_REEL, 2);
-    sym3 = GetSymbolAtRest(RIGHT_REEL, 3);
-    match = GetMatchFromSymbols(sym1, sym2, sym3);
-    if (match != MATCH_NONE)
+    c1 = GetTagAtRest(LEFT_REEL, 1);
+    c2 = GetTagAtRest(MIDDLE_REEL, 2);
+    c3 = GetTagAtRest(RIGHT_REEL, 3);
+    match = GetMatchFromSymbols(c1, c2, c3);
+    if (match != MATCHED_NONE)
     {
-        // Don't add payout for cherry, since it's already counted in
-        // CheckMatch_TopAndBottom().
-        if (match != MATCH_CHERRY)
+        if (match != MATCHED_1CHERRY)
         {
             sSlotMachine->payout += sSlotPayouts[match];
-            sSlotMachine->matches |= sSlotMatchFlags[match];
+            sSlotMachine->matchedSymbols |= sSlotMatchFlags[match];
         }
         FlashMatchLine(MATCH_NWSE_DIAG);
     }
-    sym1 = GetSymbolAtRest(LEFT_REEL, 3);
-    sym2 = GetSymbolAtRest(MIDDLE_REEL, 2);
-    sym3 = GetSymbolAtRest(RIGHT_REEL, 1);
-    match = GetMatchFromSymbols(sym1, sym2, sym3);
-    if (match != MATCH_NONE)
+    c1 = GetTagAtRest(LEFT_REEL, 3);
+    c2 = GetTagAtRest(MIDDLE_REEL, 2);
+    c3 = GetTagAtRest(RIGHT_REEL, 1);
+    match = GetMatchFromSymbols(c1, c2, c3);
+    if (match != MATCHED_NONE)
     {
-        // Don't add payout for cherry, since it's already counted in
-        // CheckMatch_TopAndBottom().
-        if (match != MATCH_CHERRY)
+        if (match != MATCHED_1CHERRY)
         {
             sSlotMachine->payout += sSlotPayouts[match];
-            sSlotMachine->matches |= sSlotMatchFlags[match];
+            sSlotMachine->matchedSymbols |= sSlotMatchFlags[match];
         }
         FlashMatchLine(MATCH_NESW_DIAG);
     }
 }
 
-static u8 GetMatchFromSymbols(u8 sym1, u8 sym2, u8 sym3)
+static u8 GetMatchFromSymbols(u8 c1, u8 c2, u8 c3)
 {
-    if (sym1 == sym2 && sym1 == sym3)
-        return sSymbolToMatch[sym1];
-    if (sym1 == SYMBOL_7_RED && sym2 == SYMBOL_7_RED && sym3 == SYMBOL_7_BLUE)
-        return MATCH_MIXED_7;
-    if (sym1 == SYMBOL_7_BLUE && sym2 == SYMBOL_7_BLUE && sym3 == SYMBOL_7_RED)
-        return MATCH_MIXED_7;
-    if (sym1 == SYMBOL_CHERRY)
-        return MATCH_CHERRY;
-    return MATCH_NONE;
+    if (c1 == c2 && c1 == c3)
+        return sSymToMatch[c1];
+    if (c1 == GFXTAG_7_RED && c2 == GFXTAG_7_RED && c3 == GFXTAG_7_BLUE)
+        return MATCHED_777_MIXED;
+    if (c1 == GFXTAG_7_BLUE && c2 == GFXTAG_7_BLUE && c3 == GFXTAG_7_RED)
+        return MATCHED_777_MIXED;
+    if (c1 == GFXTAG_CHERRY)
+        return MATCHED_1CHERRY;
+    return MATCHED_NONE;
 }
 
 static void AwardPayout(void)
 {
-    Task_Payout(CreateTask(Task_Payout, 4));
+    RunAwardPayoutActions(CreateTask(RunAwardPayoutActions, 4));
 }
 
-static bool8 IsFinalTask_Task_Payout(void)
+static bool8 IsFinalTask_RunAwardPayoutActions(void)
 {
-    if (FindTaskIdByFunc(Task_Payout) == TAIL_SENTINEL)
+    if (FindTaskIdByFunc(RunAwardPayoutActions) == TAIL_SENTINEL)
         return TRUE;
     else
         return FALSE;
 }
 
-static void Task_Payout(u8 taskId)
+static void RunAwardPayoutActions(u8 taskId)
 {
-    while (sPayoutTasks[gTasks[taskId].data[0]](&gTasks[taskId]))
+    while (sAwardPayoutActions[gTasks[taskId].data[0]](&gTasks[taskId]))
         ;
 }
 
-#define tState data[0]
-#define tTimer data[1]
-
-static bool8 PayoutTask_Init(struct Task *task)
+static bool8 AwardPayoutAction0(struct Task *task)
 {
     if (IsMatchLineDoneFlashingBeforePayout())
     {
-        task->tState++; // PAYOUT_TASK_GIVE_PAYOUT
+        task->data[0]++;
         if (sSlotMachine->payout == 0)
         {
-            task->tState = PAYOUT_TASK_FREE;
+            task->data[0] = 2;
             return TRUE;
         }
     }
     return FALSE;
 }
-static bool8 PayoutTask_GivePayout(struct Task *task)
+// task->data[1]: timer
+static bool8 AwardPayoutAction_GivePayoutToPlayer(struct Task *task)
 {
-    if (!task->tTimer--)
+    if (!task->data[1]--)
     {
         if (IsFanfareTaskInactive())
             PlaySE(SE_PIN);
         sSlotMachine->payout--;
         if (sSlotMachine->coins < MAX_COINS)
             sSlotMachine->coins++;
-        task->tTimer = 8;
+        task->data[1] = 8;
         if (JOY_HELD(A_BUTTON))
-            task->tTimer = 4;
+            task->data[1] = 4;
     }
     if (IsFanfareTaskInactive() && JOY_NEW(START_BUTTON))
     {
@@ -2144,22 +1953,19 @@ static bool8 PayoutTask_GivePayout(struct Task *task)
         sSlotMachine->payout = 0;
     }
     if (sSlotMachine->payout == 0)
-        task->tState++; // PAYOUT_TASK_FREE
+        task->data[0]++;
     return FALSE;
 }
 
-static bool8 PayoutTask_Free(struct Task *task)
+static bool8 AwardPayoutAction_FreeTask(struct Task *task)
 {
     if (TryStopMatchLinesFlashing())
-        DestroyTask(FindTaskIdByFunc(Task_Payout));
+        DestroyTask(FindTaskIdByFunc(RunAwardPayoutActions));
     return FALSE;
 }
 
-#undef tState
-#undef tTimer
-
-// Get the symbol at position `offset` below the top of the reel's tape. Note
-// that if `offset` is negative, it wraps around to the bottom of the tape.
+// Get the tag at position `offset` below the top of the reel's tape. Note that
+// if `offset` is negative, it wraps around to the bottom of the tape.
 //           .-----------------.
 //           | [ ] | [ ] | [ ] | <- offset = 0
 //           /-----|-----|-----\
@@ -2170,42 +1976,40 @@ static bool8 PayoutTask_Free(struct Task *task)
 //           | ... | ... | ... |
 //           | [ ] | [ ] | [ ] | <- offset = 20
 //           .-----------------.
-static u8 GetSymbolAtRest(u8 reel, s16 offset)
+static u8 GetTagAtRest(u8 reel, s16 offset)
 {
     s16 pos = (sSlotMachine->reelPositions[reel] + offset) % SYMBOLS_PER_REEL;
     if (pos < 0)
         pos += SYMBOLS_PER_REEL;
-    return sReelSymbols[reel][pos];
+    return sReelSymbolTileTags[reel][pos];
 }
 
-// Calculates GetSymbolAtRest as if the reel were snapped downwards into place.
-static u8 GetSymbol(u8 reel, s16 offset)
+// Calculates GetTagAtRest as if the reel were snapped downwards into place.
+static u8 GetTag(u8 reel, s16 offset)
 {
     s16 inc = 0;
     s16 pixelOffset = sSlotMachine->reelPixelOffsets[reel] % REEL_SYMBOL_HEIGHT;
     if (pixelOffset != 0)
         inc = -1;
-    return GetSymbolAtRest(reel, offset + inc);
+    return GetTagAtRest(reel, offset + inc);
 }
 
-static u8 GetReelTimeSymbol(s16 offset)
+static u8 GetNearbyReelTimeTag(s16 n)
 {
-    s16 newPosition = (sSlotMachine->reeltimePosition + offset) % REELTIME_SYMBOLS;
+    s16 newPosition = (sSlotMachine->reeltimePosition + n) % 6;
     if (newPosition < 0)
-        newPosition += REELTIME_SYMBOLS;
-    return sReelTimeSymbols[newPosition];
+        newPosition += 6;
+    return sReelTimeTags[newPosition];
 }
 
 static void AdvanceSlotReel(u8 reelIndex, s16 value)
 {
     sSlotMachine->reelPixelOffsets[reelIndex] += value;
-    sSlotMachine->reelPixelOffsets[reelIndex] %= REEL_HEIGHT;
+    sSlotMachine->reelPixelOffsets[reelIndex] %= 504;
     sSlotMachine->reelPositions[reelIndex] = SYMBOLS_PER_REEL - sSlotMachine->reelPixelOffsets[reelIndex] / REEL_SYMBOL_HEIGHT;
 }
 
-// Advances the reel no further than the next symbol. Returns the remaining
-// pixels until the next symbol.
-s16 AdvanceSlotReelToNextSymbol(u8 reelIndex, s16 value)
+s16 AdvanceSlotReelToNextTag(u8 reelIndex, s16 value)
 {
     s16 offset = sSlotMachine->reelPixelOffsets[reelIndex] % REEL_SYMBOL_HEIGHT;
     if (offset != 0)
@@ -2221,53 +2025,48 @@ s16 AdvanceSlotReelToNextSymbol(u8 reelIndex, s16 value)
 static void AdvanceReeltimeReel(s16 value)
 {
     sSlotMachine->reeltimePixelOffset += value;
-    sSlotMachine->reeltimePixelOffset %= REELTIME_REEL_HEIGHT;
-    sSlotMachine->reeltimePosition = REELTIME_SYMBOLS - sSlotMachine->reeltimePixelOffset / REELTIME_SYMBOL_HEIGHT;
+    sSlotMachine->reeltimePixelOffset %= 120;
+    sSlotMachine->reeltimePosition = 6 - sSlotMachine->reeltimePixelOffset / 20;
 }
 
-// Advances the reel no further than the next symbol. Returns the remaining
-// pixels until the next symbol.
-s16 AdvanceReeltimeReelToNextSymbol(s16 value)
+s16 AdvanceReeltimeReelToNextTag(s16 value)
 {
-    s16 offset = sSlotMachine->reeltimePixelOffset % REELTIME_SYMBOL_HEIGHT;
+    s16 offset = sSlotMachine->reeltimePixelOffset % 20;
     if (offset != 0)
     {
         if (offset < value)
             value = offset;
         AdvanceReeltimeReel(value);
-        offset = sSlotMachine->reeltimePixelOffset % REELTIME_SYMBOL_HEIGHT;
+        offset = sSlotMachine->reeltimePixelOffset % 20;
     }
     return offset;
 }
 
-#define tState          data[0]
-#define tExtraTurns     data[1]
-#define tShockMagnitude data[1]
-#define tTimer          data[2]
-#define tMoving         data[14]
-#define tReelId         data[15]
+#define tState  data[0]
+#define tMoving data[14]
+#define tReelId data[15]
 
-static void CreateReelTasks(void)
+static void CreateSlotReelTasks(void)
 {
     u8 i;
     for (i = 0; i < NUM_REELS; i++)
     {
-        u8 taskId = CreateTask(Task_Reel, 2);
+        u8 taskId = CreateTask(Task_RunSlotReelActions, 2);
         gTasks[taskId].tReelId = i;
         sSlotMachine->slotReelTasks[i] = taskId;
-        Task_Reel(taskId);
+        Task_RunSlotReelActions(taskId);
     }
 }
 
 static void SpinSlotReel(u8 reelIndex)
 {
-    gTasks[sSlotMachine->slotReelTasks[reelIndex]].tState = REEL_TASK_SPIN;
+    gTasks[sSlotMachine->slotReelTasks[reelIndex]].tState = REEL_ACTION_SPIN;
     gTasks[sSlotMachine->slotReelTasks[reelIndex]].tMoving = TRUE;
 }
 
 static void StopSlotReel(u8 reelIndex)
 {
-    gTasks[sSlotMachine->slotReelTasks[reelIndex]].tState = REEL_TASK_DECIDE_STOP;
+    gTasks[sSlotMachine->slotReelTasks[reelIndex]].tState = REEL_ACTION_STOP;
 }
 
 static bool8 IsSlotReelMoving(u8 reelIndex)
@@ -2275,52 +2074,43 @@ static bool8 IsSlotReelMoving(u8 reelIndex)
     return gTasks[sSlotMachine->slotReelTasks[reelIndex]].tMoving;
 }
 
-static void Task_Reel(u8 taskId)
+static void Task_RunSlotReelActions(u8 taskId)
 {
-    while (sReelTasks[gTasks[taskId].tState](&gTasks[taskId]))
+    while (sSlotReelActions[gTasks[taskId].tState](&gTasks[taskId]))
         ;
 }
 
-static bool8 ReelTask_StayStill(struct Task *task)
+// task->data[1]  reel turns
+static bool8 SlotReelAction_StayStill(struct Task *task)
 {
     return FALSE;
 }
 
-static bool8 ReelTask_Spin(struct Task *task)
+static bool8 SlotReelAction_Spin(struct Task *task)
 {
-    AdvanceSlotReel(task->tReelId, sSlotMachine->reelSpeed);
+    AdvanceSlotReel(task->tReelId, sSlotMachine->reelIncrement);
     return FALSE;
 }
 
-// In ReelTime, the reel stops immediately. Otherwise, the game may manipulate
-// the results by stopping after at most 4 extra turns. The exact behavior
-// differs depending on whether the machine has a bias.
-//
-// If the machine has a bias, it will try to match the bias symbol in each reel.
-//
-// Otherwise, if the machine doesn't have a bias or it could not line up the
-// bias symbol in any of the previous reels, it will perform the NoBias stopping
-// routine, which manipulates the outcome so the player loses.
-static bool8 ReelTask_DecideStop(struct Task *task)
+// As in previous generations, the slot machine often doesn't stop exactly when you press stop
+static bool8 SlotReelAction_DecideWhereToStop(struct Task *task)
 {
-    task->tState++; // REEL_TASK_STOP_MOVE
+    task->tState++;
+    // initialize data for that reel --> these will be changed if sBiasTags can be lined up
     sSlotMachine->winnerRows[task->tReelId] = 0;
     sSlotMachine->reelExtraTurns[task->tReelId] = 0;
 
-    if (sSlotMachine->reelTimeSpinsLeft == 0)
+    if (sSlotMachine->reelTimeSpinsLeft == 0 && (sSlotMachine->luckyFlags == 0 || !sSlotMachine->isLuckySpin || !sDecideReelTurns_BiasTag[task->tReelId]()))
     {
-        if (sSlotMachine->machineBias == 0 || !sSlotMachine->didNotFailBias || !sDecideStop_Bias[task->tReelId]())
-        {
-            sSlotMachine->didNotFailBias = FALSE;
-            sDecideStop_NoBias[task->tReelId]();
-        }
+        sSlotMachine->isLuckySpin = FALSE;
+        sDecideReelTurns_NoBiasTag[task->tReelId]();
     }
-    task->tExtraTurns = sSlotMachine->reelExtraTurns[task->tReelId];
+    task->data[1] = sSlotMachine->reelExtraTurns[task->tReelId];
     return TRUE;
 }
 
-// Go to the next symbol, then add any extra turns.
-static bool8 ReelTask_MoveToStop(struct Task *task)
+// go to next tag and then do any additional turns
+static bool8 SlotReelAction_MoveToStop(struct Task *task)
 {
     u16 reelStopShocks[ARRAY_COUNT(sReelStopShocks)];
     s16 reelPixelPos;
@@ -2328,147 +2118,112 @@ static bool8 ReelTask_MoveToStop(struct Task *task)
     memcpy(reelStopShocks, sReelStopShocks, sizeof(sReelStopShocks));
     reelPixelPos = sSlotMachine->reelPixelOffsets[task->tReelId] % REEL_SYMBOL_HEIGHT;
     if (reelPixelPos != 0)
-        reelPixelPos = AdvanceSlotReelToNextSymbol(task->tReelId, sSlotMachine->reelSpeed);
+        reelPixelPos = AdvanceSlotReelToNextTag(task->tReelId, sSlotMachine->reelIncrement);
     else if (sSlotMachine->reelExtraTurns[task->tReelId])
     {
         sSlotMachine->reelExtraTurns[task->tReelId]--;
-        AdvanceSlotReel(task->tReelId, sSlotMachine->reelSpeed);
+        AdvanceSlotReel(task->tReelId, sSlotMachine->reelIncrement);
         reelPixelPos = sSlotMachine->reelPixelOffsets[task->tReelId] % REEL_SYMBOL_HEIGHT;
     }
-
     if (reelPixelPos == 0 && sSlotMachine->reelExtraTurns[task->tReelId] == 0)
     {
-        task->tState++; // REEL_TASK_STOP_SHAKE
-        task->tShockMagnitude = reelStopShocks[task->tExtraTurns];
-        task->tTimer = 0;
+        task->tState++;
+        task->data[1] = reelStopShocks[task->data[1]];
+        task->data[2] = 0;
     }
     return FALSE;
 }
 
-// The reel shakes a little at the selected symbol before settling.
-static bool8 ReelTask_ShakingStop(struct Task *task)
+// make selected tag oscillate before it becomes still
+static bool8 SlotReelAction_OscillatingStop(struct Task *task)
 {
-    sSlotMachine->reelShockOffsets[task->tReelId] = task->tShockMagnitude;
-    task->tShockMagnitude = -task->tShockMagnitude;
-    task->tTimer++;
-    if ((task->tTimer & 0x3) == 0)
-        task->tShockMagnitude >>= 1;
-    if (task->tShockMagnitude == 0)
+    sSlotMachine->reelPixelOffsetsWhileStopping[task->tReelId] = task->data[1];
+    task->data[1] = -task->data[1];
+    task->data[2]++;
+    if ((task->data[2] & 0x3) == 0)
+        task->data[1] >>= 1;
+    if (task->data[1] == 0)
     {
         task->tState = 0;
         task->tMoving = FALSE;
-        sSlotMachine->reelShockOffsets[task->tReelId] = 0;
+        sSlotMachine->reelPixelOffsetsWhileStopping[task->tReelId] = 0;
     }
     return FALSE;
 }
 
 #undef tState
-#undef tExtraTurns
-#undef tShockMagnitude
-#undef tTimer
 #undef tMoving
 #undef tReelId
 
-// We pass along two symbols to bias toward. If the machine is biased toward
-// 7's, we pass both the 7 symbols. Otherwise, we just pass the bias symbol
-// twice.
-static bool8 DecideStop_Bias_Reel1(void)
+static bool8 DecideReelTurns_BiasTag_Reel1(void)
 {
-    u8 sym2 = GetBiasSymbol(sSlotMachine->machineBias);
-    u8 sym1 = sym2;
-    if (sSlotMachine->machineBias & (BIAS_STRAIGHT_7 | BIAS_MIXED_7))
+    u8 tag2 = GetBiasTag(sSlotMachine->luckyFlags);
+    u8 tag1 = tag2;
+    if (sSlotMachine->luckyFlags & (LUCKY_BIAS_777 | LUCKY_BIAS_MIXED_777))
     {
-        sym1 = SYMBOL_7_RED;
-        sym2 = SYMBOL_7_BLUE;
+        tag1 = GFXTAG_7_RED;
+        tag2 = GFXTAG_7_BLUE;
     }
-        return sDecideStop_Bias_Reel1_Bets[sSlotMachine->bet - 1](sym1, sym2);
+    return sDecideReelTurns_BiasTag_Reel1_Bets[sSlotMachine->bet - 1](tag1, tag2);
 }
 
-// The biasSymbol for subsequent reels is determined based on which of the bias
-// symbols can be found in reel 1. This really only matters when the machine is
-// biased toward 7's. It will try to match a 7 of the same color as reel 1.
-static bool8 EitherSymbolAtPos_Reel1(s16 pos, u8 sym1, u8 sym2)
+static bool8 AreTagsAtPosition_Reel1(s16 pos, u8 tag1, u8 tag2)
 {
-    u8 sym = GetSymbol(LEFT_REEL, pos);
-    if (sym == sym1 || sym == sym2)
+    u8 tag = GetTag(LEFT_REEL, pos);
+    if (tag == tag1 || tag == tag2)
     {
-        sSlotMachine->biasSymbol = sym;
+        sSlotMachine->biasTag = tag;
         return TRUE;
     }
     return FALSE;
 }
 
-// Returns true if there are cherries on screen in reel 1 after the given number
-// of turns.
-static bool8 AreCherriesOnScreen_Reel1(s16 turns)
+static bool8 AreCherriesOnScreen_Reel1(s16 offsetFromCenter)
 {
-    if (GetSymbol(LEFT_REEL, 1 - turns) == SYMBOL_CHERRY
-        || GetSymbol(LEFT_REEL, 2 - turns) == SYMBOL_CHERRY
-        || GetSymbol(LEFT_REEL, 3 - turns) == SYMBOL_CHERRY)
+    if (GetTag(LEFT_REEL, 1 - offsetFromCenter) == GFXTAG_CHERRY
+     || GetTag(LEFT_REEL, 2 - offsetFromCenter) == GFXTAG_CHERRY
+     || GetTag(LEFT_REEL, 3 - offsetFromCenter) == GFXTAG_CHERRY)
         return TRUE;
     else
         return FALSE;
 }
 
-static bool8 BiasedTowardCherryOr7s(void)
+static bool8 IsBiasTowardsCherryOr7s(void)
 {
-    if (sSlotMachine->machineBias & (BIAS_STRAIGHT_7 | BIAS_MIXED_7 | BIAS_CHERRY))
+    if (sSlotMachine->luckyFlags & (LUCKY_BIAS_777 | LUCKY_BIAS_MIXED_777 | LUCKY_BIAS_CHERRY))
         return TRUE;
     else
         return FALSE;
 }
 
-// If a bias symbol appears in the center of reel 1 within the next 4 turns,
-// stop there. That symbol becomes the biasSymbol for the subsequent reels.
-static bool8 DecideStop_Bias_Reel1_Bet1(u8 sym1, u8 sym2)
+static bool8 DecideReelTurns_BiasTag_Reel1_Bet1(u8 tag1, u8 tag2)
 {
     s16 i;
 
-    for (i = 0; i <= MAX_EXTRA_TURNS; i++)
+    for (i = 0; i < 5; i++)
     {
-        if (EitherSymbolAtPos_Reel1(2 - i, sym1, sym2))
+        // if a lucky tag appears in the center row within 4 turns
+        if (AreTagsAtPosition_Reel1(2 - i, tag1, tag2))
         {
             sSlotMachine->winnerRows[LEFT_REEL] = 2;
-            sSlotMachine->reelExtraTurns[LEFT_REEL] = i;
+            sSlotMachine->reelExtraTurns[0] = i;
             return TRUE;
         }
     }
     return FALSE;
 }
 
-// There is slightly different behavior depending on the machine's bias.
-//
-// Bias toward cherry or 7s:
-//  - Check if a cherry or 7 is currently on screen. If so, stop immediately.
-//  - Roll up to 4 extra turns to see if a cherry or 7 enters the screen:
-//     - If it enters after 1 turn, stop the reel when it gets the bottom row.
-//     - Otherwise, if it enters before the 4th turn, stop the reel when it gets
-//       to the middle row.
-//     - If it enters on the 4th turn, stop here. It will be in the top row.
-//
-// Other bias:
-//  - This is very similar, except the game is checking for the bias symbol
-//    rather than cherries / 7s.
-//
-//    However, the game adds an additional constraint: it will not stop if there
-//    will be any cherries on screen. Presumably, this ensures that you will not
-//    get any matches if you fail to line up the bias symbol in the remaining
-//    reels.
-//
-//    This is programmed in such a way that it excludes more options than
-//    necessary. If there are cherries in the two positions below the bias symbol,
-//    it will skip over this option, even if those cherries would not have ended
-//    up on screen.
-static bool8 DecideStop_Bias_Reel1_Bet2or3(u8 sym1, u8 sym2)
+static bool8 DecideReelTurns_BiasTag_Reel1_Bet2or3(u8 tag1, u8 tag2)
 {
     s16 i;
-    bool8 cherry7Bias = BiasedTowardCherryOr7s();
-    if (cherry7Bias || !AreCherriesOnScreen_Reel1(0))
+    bool8 biased = IsBiasTowardsCherryOr7s();
+    // if lucky numbers or no cherries are currently on screen in reel 1...
+    if (biased || !AreCherriesOnScreen_Reel1(0))
     {
-        // Check the current screen
-        for (i = 1; i <= 3; i++)
+        for (i = 1; i < 4; i++)
         {
-            if (EitherSymbolAtPos_Reel1(i, sym1, sym2))
+            // if a bias tag is currently on the screen
+            if (AreTagsAtPosition_Reel1(i, tag1, tag2))
             {
                 sSlotMachine->winnerRows[0] = i;
                 sSlotMachine->reelExtraTurns[0] = 0;
@@ -2476,27 +2231,30 @@ static bool8 DecideStop_Bias_Reel1_Bet2or3(u8 sym1, u8 sym2)
             }
         }
     }
-
-    // Check the next 4 turns
-    for (i = 1; i <= MAX_EXTRA_TURNS; i++)
+    for (i = 1; i < 5; i++)
     {
-        bool8 cherry7BiasCopy = cherry7Bias; // redundant
-        if (cherry7BiasCopy || !AreCherriesOnScreen_Reel1(i))
+        bool8 biasedCopy = biased;  // redundant
+        // if biased or if in the next 4 turns there is a screen with no cherries...
+        if (biasedCopy || !AreCherriesOnScreen_Reel1(i))
         {
-            if (EitherSymbolAtPos_Reel1(1 - i, sym1, sym2))
+            //...and if a bias tag is in top row of that screen
+            if (AreTagsAtPosition_Reel1(1 - i, tag1, tag2))
             {
-                if (i == 1 && (cherry7BiasCopy || !AreCherriesOnScreen_Reel1(3)))
+                //...and if it only took 1 turn and the lucky tag could also be the bottom row of a screen with no cherries...
+                if (i == 1 && (biasedCopy || !AreCherriesOnScreen_Reel1(3)))
                 {
                     sSlotMachine->winnerRows[0] = 3;
                     sSlotMachine->reelExtraTurns[0] = 3;
                     return TRUE;
                 }
-                if (i <= 3 && (cherry7BiasCopy || !AreCherriesOnScreen_Reel1(i + 1)))
+                //...or if it isn't the last turn and the lucky tag could be in the center row of a screen with no cherries...
+                if (i < 4 && (biasedCopy || !AreCherriesOnScreen_Reel1(i + 1)))
                 {
                     sSlotMachine->winnerRows[0] = 2;
                     sSlotMachine->reelExtraTurns[0] = i + 1;
                     return TRUE;
                 }
+                //...else
                 sSlotMachine->winnerRows[0] = 1;
                 sSlotMachine->reelExtraTurns[0] = i;
                 return TRUE;
@@ -2506,23 +2264,22 @@ static bool8 DecideStop_Bias_Reel1_Bet2or3(u8 sym1, u8 sym2)
     return FALSE;
 }
 
-static bool8 DecideStop_Bias_Reel2(void)
+static bool8 DecideReelTurns_BiasTag_Reel2(void)
 {
-    return sDecideStop_Bias_Reel2_Bets[sSlotMachine->bet - 1]();
+    return sDecideReelTurns_BiasTag_Reel2_Bets[sSlotMachine->bet - 1]();
 }
 
-// Turn at most 4 extra turns to try to line up the bias symbol in the same row
-// as reel 1.
-static bool8 DecideStop_Bias_Reel2_Bet1or2(void)
+static bool8 DecideReelTurns_BiasTag_Reel2_Bet1or2(void)
 {
     s16 i;
-    s16 reel1BiasRow = sSlotMachine->winnerRows[0];
+    s16 biasTagLocation_Reel1 = sSlotMachine->winnerRows[0];
 
-    for (i = 0; i <= MAX_EXTRA_TURNS; i++)
+    for (i = 0; i < 5; i++)
     {
-        if (GetSymbol(MIDDLE_REEL, reel1BiasRow - i) == sSlotMachine->biasSymbol)
+        // if biasTag appears in the same row within 4 turns
+        if (GetTag(MIDDLE_REEL, biasTagLocation_Reel1 - i) == sSlotMachine->biasTag)
         {
-            sSlotMachine->winnerRows[1] = reel1BiasRow;
+            sSlotMachine->winnerRows[1] = biasTagLocation_Reel1;
             sSlotMachine->reelExtraTurns[1] = i;
             return TRUE;
         }
@@ -2530,55 +2287,19 @@ static bool8 DecideStop_Bias_Reel2_Bet1or2(void)
     return FALSE;
 }
 
-// Checks whether it can match the bias symbol diagonally, and sometimes skews
-// toward this type of match rather than a match straight across.
-//
-// The behavior is different depending on where the bias symbol landed in
-// reel 1:
-//
-// Landed in middle row:
-//   A diagonal match is impossible. Just try to match the bias symbol in the
-//   middle row of reel 2 within 4 turns.
-//
-// Landed in top/bottom row:
-//  - If it would take 2 or 3 turns to get the bias symbol into the same row as
-//    reel 1, force a diagonal match by stopping it in the middle row instead.
-//  - Check if the bias symbol is already in the same row as reel 1, or if it
-//    takes 1 or 4 turns to get it there. If so, stop when it reaches that row.
-//  - Otherwise, check if the bias symbol is already in the middle row of
-//    reel 2. If so, stop here.
-//
-// So in how many more cases would betting 3 coins let you win compared to
-// betting 2?
-//   Not many. Most of the time, the game would have matched the symbol in the
-//   same row as reel 1 if you had bet 2 coins. Betting 3 effectively adds
-//   coverage for only two additional cases:
-//    - Bias symbol is in top row of reel 1 and bias symbol is currently in
-//      middle row of reel 2.
-//    - Bias symbol is in bottom row of reel 1 and bias symbol could get to the
-//      middle row of reel 2 in 4 turns.
-//
-// Assuming this is the implementation Game Freak intended, the game effectively
-// turns straight matches into diagonal matches with 2/5 probability.
-// Presumably, this makes the player feel fortunate that they bet 3 coins rather
-// than 2, even though most times the game would have still forced a match with
-// only 2 coins.
-static bool8 DecideStop_Bias_Reel2_Bet3(void)
+static bool8 DecideReelTurns_BiasTag_Reel2_Bet3(void)
 {
     s16 i;
-    // If you can line up the bias symbol in the same row as reel 1 within 4
-    // turns
-    if (DecideStop_Bias_Reel2_Bet1or2())
+    // if biasTag appears in the same row within 4 turns...
+    if (DecideReelTurns_BiasTag_Reel2_Bet1or2())
     {
-        // If bias symbol is not in the middle row of reel 1 and it takes either
-        // 2 or 3 turns to get it in the same row for reel 2
+        //...and if the biasTag is not in middle row of reel 1 and if biasTag appears in middle row of reel 2 in 2 or 3 turns...
         if (sSlotMachine->winnerRows[0] != 2 && sSlotMachine->reelExtraTurns[1] > 1 && sSlotMachine->reelExtraTurns[1] != 4)
         {
-            // Try turning this into a diagonal match by lining up the bias
-            // symbol in the middle row of reel 2 within 4 turns.
-            for (i = 0; i <= MAX_EXTRA_TURNS; i++)
+            for (i = 0; i < 5; i++)
             {
-                if (GetSymbol(MIDDLE_REEL, 2 - i) == sSlotMachine->biasSymbol)
+                //...and if the bias tag will appear in the middle row within 4 turns
+                if (GetTag(MIDDLE_REEL, 2 - i) == sSlotMachine->biasTag)
                 {
                     sSlotMachine->winnerRows[1] = 2;
                     sSlotMachine->reelExtraTurns[1] = i;
@@ -2588,16 +2309,13 @@ static bool8 DecideStop_Bias_Reel2_Bet3(void)
         }
         return TRUE;
     }
-
-    // If you can't line up the bias symbol in the same row in 4 turns, and the
-    // bias symbol is not in the middle row of reel 1
+    // else if the biasTag is not in middle row of reel 1...
     if (sSlotMachine->winnerRows[0] != 2)
     {
-        // Try to match the bias symbol in middle row of reel 2 within 4 turns.
-        // Adds coverage for the two cases mentioned above.
-        for (i = 0; i <= MAX_EXTRA_TURNS; i++)
+        for (i = 0; i < 5; i++)
         {
-            if (GetSymbol(MIDDLE_REEL, 2 - i) == sSlotMachine->biasSymbol)
+            //...and if the biasTag will appear in the center row of reel 2 within 4 turns
+            if (GetTag(MIDDLE_REEL, 2 - i) == sSlotMachine->biasTag)
             {
                 sSlotMachine->winnerRows[1] = 2;
                 sSlotMachine->reelExtraTurns[1] = i;
@@ -2608,34 +2326,31 @@ static bool8 DecideStop_Bias_Reel2_Bet3(void)
     return FALSE;
 }
 
-// If the machine is biased toward mixed 7's, swap the color of the bias symbol
-// from red 7 to blue 7, or vice versa.
-static bool8 DecideStop_Bias_Reel3(void)
+static bool8 DecideReelTurns_BiasTag_Reel3(void)
 {
-    u8 biasSymbol = sSlotMachine->biasSymbol;
-    if (sSlotMachine->machineBias & BIAS_MIXED_7)
+    u8 biasTag = sSlotMachine->biasTag;
+    if (sSlotMachine->luckyFlags & LUCKY_BIAS_MIXED_777)
     {
-        biasSymbol = SYMBOL_7_RED;
-        if (sSlotMachine->biasSymbol == SYMBOL_7_RED)
+        biasTag = GFXTAG_7_RED;
+        if (sSlotMachine->biasTag == GFXTAG_7_RED)
         {
-            biasSymbol = SYMBOL_7_BLUE;
+            biasTag = GFXTAG_7_BLUE;
         }
     }
-    return sDecideStop_Bias_Reel3_Bets[sSlotMachine->bet - 1](biasSymbol);
+    return sDecideReelTurns_BiasTag_Reel3_Bets[sSlotMachine->bet - 1](biasTag);
 }
 
-// Turn at most 4 extra turns to try to line up the bias symbol in the same
-// row as reel 2.
-static bool8 DecideStop_Bias_Reel3_Bet1or2(u8 biasSymbol)
+static bool8 DecideReelTurns_BiasTag_Reel3_Bet1or2(u8 biasTag)
 {
     s16 i;
-    s16 reel2BiasRow = sSlotMachine->winnerRows[1];
+    s16 biasTagLocation_Reel2 = sSlotMachine->winnerRows[1];
 
-    for (i = 0; i <= MAX_EXTRA_TURNS; i++)
+    for (i = 0; i < 5; i++)
     {
-        if (GetSymbol(RIGHT_REEL, reel2BiasRow - i) == biasSymbol)
+        // if the biasTag appears in the same row as in reel 2 within 4 turns
+        if (GetTag(RIGHT_REEL, biasTagLocation_Reel2 - i) == biasTag)
         {
-            sSlotMachine->winnerRows[2] = reel2BiasRow;
+            sSlotMachine->winnerRows[2] = biasTagLocation_Reel2;
             sSlotMachine->reelExtraTurns[2] = i;
             return TRUE;
         }
@@ -2643,40 +2358,35 @@ static bool8 DecideStop_Bias_Reel3_Bet1or2(u8 biasSymbol)
     return FALSE;
 }
 
-// Try to complete a match in reel 3 by lining up a bias symbol with the bias
-// symbols from the first two reels.
-static bool8 DecideStop_Bias_Reel3_Bet3(u8 biasSymbol)
+static bool8 DecideReelTurns_BiasTag_Reel3_Bet3(u8 biasTag)
 {
     s16 i;
-    s16 biasRow;
-
-    // First two bias symbols in the same row. Try to line up bias symbol in
-    // same the row here too
+    s16 biasTagFinalPos;
+    // if the final position of the biasTag matches in reel 1 and reel 2...
     if (sSlotMachine->winnerRows[0] == sSlotMachine->winnerRows[1])
-        return DecideStop_Bias_Reel3_Bet1or2(biasSymbol);
-
-    // Otherwise, try to line up the bias symbol diagonally
+        //...then try to line it up in reel 3
+        return DecideReelTurns_BiasTag_Reel3_Bet1or2(biasTag);
+    // else place it in the row opposite reel 1's
     if (sSlotMachine->winnerRows[0] == 1)
-        biasRow = 3;
+        biasTagFinalPos = 3;
     else
-        biasRow = 1;
-    for (i = 0; i <= MAX_EXTRA_TURNS; i++)
+        biasTagFinalPos = 1;
+    for (i = 0; i < 5; i++)
     {
-        if (GetSymbol(RIGHT_REEL, biasRow - i) == biasSymbol)
+        // if the biasTag lands in that position within 4 turns
+        if (GetTag(RIGHT_REEL, biasTagFinalPos - i) == biasTag)
         {
             sSlotMachine->reelExtraTurns[2] = i;
-            sSlotMachine->winnerRows[2] = biasRow;
+            sSlotMachine->winnerRows[2] = biasTagFinalPos;
             return TRUE;
         }
     }
     return FALSE;
 }
 
-// Advance as many turns as needed until there are no cherries on screen in
-// reel 1, as cherries would cause a match.
-//
-// Based on the distribution of reel 1, this will add at most 3 extra turns.
-static void DecideStop_NoBias_Reel1(void)
+// Advance until there are no cherries on screen in reel 1
+
+static void DecideReelTurns_NoBiasTag_Reel1(void)
 {
     s16 i = 0;
 
@@ -2685,60 +2395,41 @@ static void DecideStop_NoBias_Reel1(void)
     sSlotMachine->reelExtraTurns[0] = i;
 }
 
-// If the bias symbol is one of the 7's, switch to the opposite color and return
-// true. Otherwise, return false.
-static bool8 IfSymbol7_SwitchColor(u8 *symbol)
+static bool8 IsBiasTag777_SwitchColor(u8 *biasTagPtr)
 {
-    if (*symbol == SYMBOL_7_RED)
+    if (*biasTagPtr == GFXTAG_7_RED)
     {
-        *symbol = SYMBOL_7_BLUE;
+        *biasTagPtr = GFXTAG_7_BLUE;
         return TRUE;
     }
-    if (*symbol == SYMBOL_7_BLUE)
+    if (*biasTagPtr == GFXTAG_7_BLUE)
     {
-        *symbol = SYMBOL_7_RED;
+        *biasTagPtr = GFXTAG_7_RED;
         return TRUE;
     }
     return FALSE;
 }
 
-// If the machine doesn't have a bias, the reel stops immediately.
-//
-// Otherwise, the machine tries to taunt the player if it is biased toward
-// straight 7's. This would only happen if the player did not stop near the
-// correct-color 7, so the machine couldn't force a match.
-//
-// Instead, the machine now tries to line up the opposite-color 7, which is not
-// a valid match.
-static void DecideStop_NoBias_Reel2(void)
+static void DecideReelTurns_NoBiasTag_Reel2(void)
 {
-    sDecideStop_NoBias_Reel2_Bets[sSlotMachine->bet - 1]();
+    sDecideReelTurns_NoBiasTag_Reel2_Bets[sSlotMachine->bet - 1]();
 }
 
-// If the machine has no bias, stop immediately.
-//
-// Otherwise, the machine manipulates the results if all the following
-// conditions are met:
-// If
-//  - The machine is biased toward straight 7's
-//  - The machine managed to match a 7 in the middle of reel 1
-//  - The machine could not line up a 7 of the same color in reel 2
-// Then
-//    The machine will try to line up a 7 of the opposite color in reel 2
-static void DecideStop_NoBias_Reel2_Bet1(void)
+// only does stuff if the biasTag is one of the 7's, plus other conditions
+static void DecideReelTurns_NoBiasTag_Reel2_Bet1(void)
 {
-    if (sSlotMachine->winnerRows[0] != 0 && sSlotMachine->machineBias & BIAS_STRAIGHT_7)
+    if (sSlotMachine->winnerRows[0] != 0 && sSlotMachine->luckyFlags & LUCKY_BIAS_777)
     {
-        // Note here and in other NoBias functions, reelExtraTurns is 0 if it
-        // corresponds to a previous reel. That reel has already stopped and any
-        // extra turns were applied.
-        u8 reel1MiddleSym = GetSymbol(LEFT_REEL, 2 - sSlotMachine->reelExtraTurns[0]);
-        if (IfSymbol7_SwitchColor(&reel1MiddleSym))
+        u8 biasTag = GetTag(LEFT_REEL, 2 - sSlotMachine->reelExtraTurns[0]);
+        //...and if biasTag is one of the 7's...
+        if (IsBiasTag777_SwitchColor(&biasTag))
+        //...swap color of biasTag...
         {
             s16 i;
-            for (i = 0; i <= MAX_EXTRA_TURNS; i++)
+            for (i = 0; i < 5; i++)
             {
-                if (reel1MiddleSym == GetSymbol(MIDDLE_REEL, 2 - i))
+                //...and if the biasTag appears within 4 turns
+                if (biasTag == GetTag(MIDDLE_REEL, 2 - i))
                 {
                     sSlotMachine->winnerRows[1] = 2;
                     sSlotMachine->reelExtraTurns[1] = i;
@@ -2749,27 +2440,20 @@ static void DecideStop_NoBias_Reel2_Bet1(void)
     }
 }
 
-// If the machine has no bias, stop immediately.
-//
-// Otherwise, the machine manipulates the results if all the following
-// conditions are met:
-// If
-//  - The machine is biased toward straight 7's
-//  - The machine managed to match a 7 anywhere in reel 1
-//  - The machine could not line up a 7 of the same color in reel 2
-// Then
-//    The machine will try to line up a 7 of the opposite color in reel 2
-static void DecideStop_NoBias_Reel2_Bet2(void)
+static void DecideReelTurns_NoBiasTag_Reel2_Bet2(void)
 {
-    if (sSlotMachine->winnerRows[0] != 0 && sSlotMachine->machineBias & BIAS_STRAIGHT_7)
+    if (sSlotMachine->winnerRows[0] != 0 && sSlotMachine->luckyFlags & LUCKY_BIAS_777)
     {
-        u8 reel1BiasSym = GetSymbol(LEFT_REEL, sSlotMachine->winnerRows[0] - sSlotMachine->reelExtraTurns[0]);
-        if (IfSymbol7_SwitchColor(&reel1BiasSym))
+        u8 biasTag = GetTag(LEFT_REEL, sSlotMachine->winnerRows[0] - sSlotMachine->reelExtraTurns[0]);
+        //...and if biasTag is one of the 7's...
+        if (IsBiasTag777_SwitchColor(&biasTag))
+        //...swap color of biasTag...
         {
             s16 i;
-            for (i = 0; i <= MAX_EXTRA_TURNS; i++)
+            for (i = 0; i < 5; i++)
             {
-                if (reel1BiasSym == GetSymbol(MIDDLE_REEL, sSlotMachine->winnerRows[0] - i))
+                //...and if the biasTag appears in same row in reel 2 within 4 turns
+                if (biasTag == GetTag(MIDDLE_REEL, sSlotMachine->winnerRows[0] - i))
                 {
                     sSlotMachine->winnerRows[1] = sSlotMachine->winnerRows[0];
                     sSlotMachine->reelExtraTurns[1] = i;
@@ -2780,225 +2464,146 @@ static void DecideStop_NoBias_Reel2_Bet2(void)
     }
 }
 
-// If the machine has no bias, stop immediately.
-//
-// Otherwise, the machine manipulates the results if all the following
-// conditions are met:
-// If
-//  - The machine is biased toward straight 7's
-//  - The machine managed to match a 7 anywhere in reel 1
-//  - The machine could not line up a 7 of the same color in reel 2
-// Then
-//    The machine will try to line up a 7 of the opposite color in reel 2
-//
-// The way it tries to line up an opposite-color 7 differs depending on where
-// the 7 is in reel 1:
-//
-// Middle row:
-//   Try to line up an opposite-color 7 in the middle of reel 2 within 4 turns.
-//
-// Top row:
-//  - First check for an opposite-color 7 in the top and middle rows of the
-//    current screen. If found, stop immediately.
-//  - Otherwise, check if an opposite-color 7 will enter the top row within 4
-//    turns.
-//     - If one enters in 1 or 2 turns, stop the reel when it gets to the middle
-//       row.
-//     - If one enters in 3 or 4 turns, stop the reel when it gets to the top
-//       row.
-//
-// Bottom row:
-//  - First check for an opposite-color 7 in the middle and bottom rows of the
-//    current screen. If found, stop immediately.
-//  - Otherwise, check if an opposite-color 7 will enter the bottom row within 4
-//    turns.
-//     - If one enters in 1 or 2 turns, stop the reel when it gets to the bottom
-//       row.
-//     - If one enters in 3 or 4 turns, stop the reel when it gets to the middle
-//       row.
-//
-// BUG: This procedure misses an opportunity to line up an opposite-color 7 in
-// one scenario, when:
-//  - There is a 7 in the bottom row of reel 1
-//  - And, you can get an opposite-color 7 in the middle row of reel 2 in 4
-//    turns
-static void DecideStop_NoBias_Reel2_Bet3(void)
+static void DecideReelTurns_NoBiasTag_Reel2_Bet3(void)
 {
     s16 i;
     s16 j;
-    u8 reel1BiasSym;
-
-    if (sSlotMachine->winnerRows[0] != 0 && sSlotMachine->machineBias & BIAS_STRAIGHT_7)
+    // if reel 1 has a biasTag and bit 7 is set in luckyFlags...
+    if (sSlotMachine->winnerRows[0] != 0 && sSlotMachine->luckyFlags & LUCKY_BIAS_777)
     {
-        // Lined up 7 in middle of reel 1
+        //...and if biasTag appeared in the center row of reel 1
         if (sSlotMachine->winnerRows[0] == 2)
         {
-            DecideStop_NoBias_Reel2_Bet2();
-            return;
+            DecideReelTurns_NoBiasTag_Reel2_Bet2();
         }
-
-        reel1BiasSym = GetSymbol(LEFT_REEL, sSlotMachine->winnerRows[0] - sSlotMachine->reelExtraTurns[0]);
-        if (IfSymbol7_SwitchColor(&reel1BiasSym))
+        else
         {
-            // Check current screen to see if there is already an opposite-color
-            // 7 lined up for a match.
-            j = 2;
-            if (sSlotMachine->winnerRows[0] == 3)
-                j = 3;
-            for (i = 0; i < 2; i++, j--)
+            u8 biasTag = GetTag(LEFT_REEL, sSlotMachine->winnerRows[0] - sSlotMachine->reelExtraTurns[0]);
+            //...and if biasTag is one of the 7's...
+            if (IsBiasTag777_SwitchColor(&biasTag))
+            //...swap the color of the 7...
             {
-                if (reel1BiasSym == GetSymbol(MIDDLE_REEL, j))
+                j = 2;
+                if (sSlotMachine->winnerRows[0] == 3)
+                    j = 3;
+                for (i = 0; i < 2; i++, j--)
                 {
-                    sSlotMachine->winnerRows[1] = j;
-                    sSlotMachine->reelExtraTurns[1] = 0;
-                    return;
+                    if (biasTag == GetTag(MIDDLE_REEL, j))
+                    {
+                        sSlotMachine->winnerRows[1] = j;
+                        sSlotMachine->reelExtraTurns[1] = 0;
+                        return;
+                    }
                 }
-            }
-
-            // Check if opposite-color 7 will appear in same row as reel 1 in
-            // over the next 4 turns
-            for (j = 1; j <= MAX_EXTRA_TURNS; j++)
-            {
-                if (reel1BiasSym == GetSymbol(MIDDLE_REEL, sSlotMachine->winnerRows[0] - j))
+                for (j = 1; j < 5; j++)
                 {
-                    // If 7 appeared in top row of reel 1
-                    if (sSlotMachine->winnerRows[0] == 1)
+                    if (biasTag == GetTag(MIDDLE_REEL, sSlotMachine->winnerRows[0] - j))
                     {
-                        if (j <= 2)
+                        if (sSlotMachine->winnerRows[0] == 1)
                         {
-                            sSlotMachine->winnerRows[1] = 2;
-                            sSlotMachine->reelExtraTurns[1] = j + 1;
+                            if (j < 3)
+                            {
+                                sSlotMachine->winnerRows[1] = 2;
+                                sSlotMachine->reelExtraTurns[1] = j + 1;
+                            }
+                            else
+                            {
+                                sSlotMachine->winnerRows[1] = 1;
+                                sSlotMachine->reelExtraTurns[1] = j;
+                            }
                         }
                         else
                         {
-                            sSlotMachine->winnerRows[1] = 1;
-                            sSlotMachine->reelExtraTurns[1] = j;
+                            if (j < 3)
+                            {
+                                sSlotMachine->winnerRows[1] = 3;
+                                sSlotMachine->reelExtraTurns[1] = j;
+                            }
+                            else
+                            {
+                                sSlotMachine->winnerRows[1] = 2;
+                                sSlotMachine->reelExtraTurns[1] = j - 1;
+                            }
                         }
+                        return;
                     }
-                    // If 7 appeared in bottom row of reel 1
-                    else
-                    {
-                        if (j <= 2)
-                        {
-                            sSlotMachine->winnerRows[1] = 3;
-                            sSlotMachine->reelExtraTurns[1] = j;
-                        }
-                        else
-                        {
-                            sSlotMachine->winnerRows[1] = 2;
-                            sSlotMachine->reelExtraTurns[1] = j - 1;
-                        }
-                    }
-                    return;
                 }
             }
         }
     }
 }
 
-// Returns true if the reel 1 and reel 2 symbols are opposite-color 7's.
-//
-// Note that if true, this does not constitue a MATCH_MIXED_7, as the first two
-// reels are not the same color.
-static bool8 MismatchedSyms_77(u8 sym1, u8 sym2)
+static bool8 AreTagsMixed77(u8 tag1, u8 tag2)
 {
-    if ((sym1 == SYMBOL_7_RED && sym2 == SYMBOL_7_BLUE) || (sym1 == SYMBOL_7_BLUE && sym2 == SYMBOL_7_RED))
+    if ((tag1 == GFXTAG_7_RED && tag2 == GFXTAG_7_BLUE) || (tag1 == GFXTAG_7_BLUE && tag2 == GFXTAG_7_RED))
         return TRUE;
     else
         return FALSE;
 }
 
-// Returns true if the reel 1, reel 2 and reel 3 symbolss form a 7 mismatch,
-// i.e. {7R, 7B, 7R} or {7B, 7R, 7B}.
-static bool8 MismatchedSyms_777(u8 sym1, u8 sym2, u8 sym3)
+static bool8 AreTagsMixed777(u8 tag1, u8 tag2, u8 tag3)
 {
-    if ((sym1 == SYMBOL_7_RED && sym2 == SYMBOL_7_BLUE && sym3 == SYMBOL_7_RED) ||
-        (sym1 == SYMBOL_7_BLUE && sym2 == SYMBOL_7_RED && sym3 == SYMBOL_7_BLUE))
+    if ((tag1 == GFXTAG_7_RED && tag2 == GFXTAG_7_BLUE && tag3 == GFXTAG_7_RED) ||
+        (tag1 == GFXTAG_7_BLUE && tag2 == GFXTAG_7_RED && tag3 == GFXTAG_7_BLUE))
         return TRUE;
     else
         return FALSE;
 }
 
-// Returns false if either:
-//  - The symbols form a match (including MATCH_MIXED_7)
-//  - Or, the symbols form a 7 mismatch (i.e., {7R, 7B, 7R} or {7B, 7R, 7B})
-//
-// Note, this does not account for cherry matches.
-static bool8 NeitherMatchNor7Mismatch(u8 sym1, u8 sym2, u8 sym3)
+static bool8 TagsDontMatchOrHaveAny7s(u8 tag1, u8 tag2, u8 tag3)
 {
-    if ((sym1 == SYMBOL_7_RED && sym2 == SYMBOL_7_BLUE && sym3 == SYMBOL_7_RED)
-        || (sym1 == SYMBOL_7_BLUE && sym2 == SYMBOL_7_RED && sym3 == SYMBOL_7_BLUE)
-        || (sym1 == SYMBOL_7_RED && sym2 == SYMBOL_7_RED && sym3 == SYMBOL_7_BLUE)
-        || (sym1 == SYMBOL_7_BLUE && sym2 == SYMBOL_7_BLUE && sym3 == SYMBOL_7_RED)
-        || (sym1 == sym2 && sym1 == sym3))
+    if ((tag1 == GFXTAG_7_RED && tag2 == GFXTAG_7_BLUE && tag3 == GFXTAG_7_RED) ||
+        (tag1 == GFXTAG_7_BLUE && tag2 == GFXTAG_7_RED && tag3 == GFXTAG_7_BLUE) ||
+        (tag1 == GFXTAG_7_RED && tag2 == GFXTAG_7_RED && tag3 == GFXTAG_7_BLUE) ||
+        (tag1 == GFXTAG_7_BLUE && tag2 == GFXTAG_7_BLUE && tag3 == GFXTAG_7_RED) ||
+        (tag1 == tag2 && tag1 == tag3))
     {
         return FALSE;
     }
     return TRUE;
 }
 
-// Spin until there's no match, or try to taunt the player with a 7 mismatch if
-// they failed the straight 7 bias.
-static void DecideStop_NoBias_Reel3(void)
+static void DecideReelTurns_NoBiasTag_Reel3(void)
 {
-    sDecideStop_NoBias_Reel3_Bets[sSlotMachine->bet - 1]();
+    sDecideReelTurns_NoBiasTag_Reel3_Bets[sSlotMachine->bet - 1]();
 }
 
-// Spin until there is no match in reel 3. Additionally, if the player failed a
-// straight 7 bias, try to taunt them with a 7 mismatch.
-//
-// The way this plays out depends on the first two matched symbols.
-//
-// If first two symbols are the same:
-//   Spin until you get a symbol that won't complete a match.
-//
-// Otherwise, if the first two symbols are opposite-color 7's:
-//  - If the machine is biased toward straight 7's, then the player must have
-//    failed with this bias. The machine tries to taunt the player by turning
-//    up to 4 turns to complete a 7 mismatch (i.e., {7R, 7B, 7R} or
-//    {7B, 7R, 7B}).
-//  - Otherwise, spin until you get a symbol that won't complete a match.
-static void DecideStop_NoBias_Reel3_Bet1(void)
+static void DecideReelTurns_NoBiasTag_Reel3_Bet1(void)
 {
     s16 i = 0;
-    u8 sym1 = GetSymbol(LEFT_REEL, 2 - sSlotMachine->reelExtraTurns[0]);
-    u8 sym2 = GetSymbol(MIDDLE_REEL, 2 - sSlotMachine->reelExtraTurns[1]);
-
-    // If first two symbols match, spin until you get a non-matching symbol
-    if (sym1 == sym2)
+    u8 tag1 = GetTag(LEFT_REEL, 2 - sSlotMachine->reelExtraTurns[0]);
+    u8 tag2 = GetTag(MIDDLE_REEL, 2 - sSlotMachine->reelExtraTurns[1]);
+    // if tags match in first 2 reels...
+    if (tag1 == tag2)
     {
-        while (TRUE)
+        //...spin until you get non-matching tag
+        while (1)
         {
-            u8 sym3;
-            if (!((sym1 == (sym3 = GetSymbol(RIGHT_REEL, 2 - i)))
-                  || (sym1 == SYMBOL_7_RED && sym3 == SYMBOL_7_BLUE)
-                  || (sym1 == SYMBOL_7_BLUE && sym3 == SYMBOL_7_RED)))
+            u8 tag3;
+            if (!(tag1 == (tag3 = GetTag(RIGHT_REEL, 2 - i)) || (tag1 == GFXTAG_7_RED && tag3 == GFXTAG_7_BLUE) || (tag1 == GFXTAG_7_BLUE && tag3 == GFXTAG_7_RED)))
                 break;
             i++;
         }
     }
-    // First two symbols are opposite-color 7's
-    else if (MismatchedSyms_77(sym1, sym2))
+    else if (AreTagsMixed77(tag1, tag2))
     {
-        // If biased toward straight 7's, try to complete the 7 mismatch in 4
-        // turns
-        if (sSlotMachine->machineBias & BIAS_STRAIGHT_7)
+        if (sSlotMachine->luckyFlags & LUCKY_BIAS_777)
         {
-            for (i = 0; i <= MAX_EXTRA_TURNS; i++)
+            //...see if you can match with reel 1 within 4 turns
+            for (i = 0; i < 5; i++)
             {
-                if (sym1 == GetSymbol(RIGHT_REEL, 2 - i))
+                if (tag1 == GetTag(RIGHT_REEL, 2 - i))
                 {
                     sSlotMachine->reelExtraTurns[2] = i;
                     return;
                 }
             }
         }
-
-        // Otherwise, just spin until you get a non-matching symbol
+        // turn until you aren't matching with reel 1
         i = 0;
-        while (TRUE)
+        while (1)
         {
-            if (sym1 != GetSymbol(RIGHT_REEL, 2 - i))
+            if (tag1 != GetTag(RIGHT_REEL, 2 - i))
                 break;
             i++;
         }
@@ -3006,49 +2611,25 @@ static void DecideStop_NoBias_Reel3_Bet1(void)
     sSlotMachine->reelExtraTurns[2] = i;
 }
 
-// Spin until there is no match in reel 3. Additionally, if the player failed a
-// straight 7 bias, try to taunt them with a 7 mismatch.
-//
-// There are up to two stages, depending on the first two matched symbols:
-//
-// 1. [Optional] If first two symbols are opposite-color 7's in the same row and
-//    the machine is biased toward straight 7's:
-//      Check if a 7 with the same color as reel 1 appears in the same row
-//      within 4 turns. If so, initially advance to that position.
-//
-// 2. Check rows. Keep advancing the reel a turn at a time as long as:
-//     - There is a match in any row
-//     - Or, there is a 7 mismatch in any row and the machine isn't biased
-//       toward straight 7's
-//
-// Note, stage 2 is not limited to 4 turns. The reel keeps spinning until you
-// lose.
-static void DecideStop_NoBias_Reel3_Bet2(void)
+static void DecideReelTurns_NoBiasTag_Reel3_Bet2(void)
 {
     s16 extraTurns = 0;
     s16 i;
-    u8 sym1;
-    u8 sym2;
-    u8 sym3;
-
-    // Effectively, if you lined up two 7's in the same row
-    if (sSlotMachine->winnerRows[1] != 0 &&
-        sSlotMachine->winnerRows[0] == sSlotMachine->winnerRows[1] &&
-        sSlotMachine->machineBias & BIAS_STRAIGHT_7)
+    u8 tag1;
+    u8 tag2;
+    u8 tag3;
+    if (sSlotMachine->winnerRows[1] != 0 && sSlotMachine->winnerRows[0] == sSlotMachine->winnerRows[1] && sSlotMachine->luckyFlags & LUCKY_BIAS_777)
     {
-        sym1 = GetSymbol(LEFT_REEL, sSlotMachine->winnerRows[0] - sSlotMachine->reelExtraTurns[0]);
-        sym2 = GetSymbol(MIDDLE_REEL, sSlotMachine->winnerRows[1] - sSlotMachine->reelExtraTurns[1]);
-
-        // If the first two 7's are opposite colors, see if you can line up a 7
-        // mismatch in the same row. If so, advance initially to that position.
-        // More turns may be added further below.
-        if (MismatchedSyms_77(sym1, sym2))
+        tag1 = GetTag(LEFT_REEL, sSlotMachine->winnerRows[0] - sSlotMachine->reelExtraTurns[0]);
+        tag2 = GetTag(MIDDLE_REEL, sSlotMachine->winnerRows[1] - sSlotMachine->reelExtraTurns[1]);
+        //...and if tags are mixed 7s...
+        if (AreTagsMixed77(tag1, tag2))
         {
-            // Iterate over the next 4 turns
-            for (i = 0; i <= MAX_EXTRA_TURNS; i++)
+            //...try to match with reel 1 within 4 turns
+            for (i = 0; i < 5; i++)
             {
-                sym3 = GetSymbol(RIGHT_REEL, sSlotMachine->winnerRows[1] - i);
-                if (sym1 == sym3)
+                tag3 = GetTag(RIGHT_REEL, sSlotMachine->winnerRows[1] - i);
+                if (tag1 == tag3)
                 {
                     extraTurns = i;
                     break;
@@ -3056,100 +2637,53 @@ static void DecideStop_NoBias_Reel3_Bet2(void)
             }
         }
     }
-
-    while (TRUE)
+    // GUESS: spin until there's no possible match within 4 turns of you stopping
+    while (1)
     {
-        s16 numMatches;
-        // Iterate over the rows of the screen after `extraTurns` turns
-        for (i = 1, numMatches = 0; i <= 3; i++)
+        s16 loopExit;
+        for (i = 1, loopExit = 0; i < 4; i++)
         {
-            sym1 = GetSymbol(LEFT_REEL, i - sSlotMachine->reelExtraTurns[0]);
-            sym2 = GetSymbol(MIDDLE_REEL, i - sSlotMachine->reelExtraTurns[1]);
-            sym3 = GetSymbol(RIGHT_REEL, i - extraTurns);
-
-            // This boils down to:
-            //   If there's a match on screen, keep spinning. Otherwise, if
-            //   there's a 7 mismatch on screen, keep spinning if the machine
-            //   isn't biased toward straight 7's.
-            if (!NeitherMatchNor7Mismatch(sym1, sym2, sym3) &&
-                !(MismatchedSyms_777(sym1, sym2, sym3) && (sSlotMachine->machineBias & BIAS_STRAIGHT_7)))
+            tag1 = GetTag(LEFT_REEL, i - sSlotMachine->reelExtraTurns[0]);  // why does this update with i
+            tag2 = GetTag(MIDDLE_REEL, i - sSlotMachine->reelExtraTurns[1]);
+            tag3 = GetTag(RIGHT_REEL, i - extraTurns);
+            // if bit 7 of luckyFlags is unset...
+            //...and if all 3 tags match and they're not mixed 7s
+            if (!TagsDontMatchOrHaveAny7s(tag1, tag2, tag3) && (!AreTagsMixed777(tag1, tag2, tag3) || !(sSlotMachine->luckyFlags & LUCKY_BIAS_777)))
             {
-                numMatches++;
+                loopExit++;
                 break;
             }
         }
-
-        // If no matches were found, stop here. Otherwise, add an extra spin and
-        // check again.
-        if (numMatches == 0)
+        if (loopExit == 0)
             break;
         extraTurns++;
     }
     sSlotMachine->reelExtraTurns[2] = extraTurns;
 }
 
-// Try to spin until there is no match in reel 3. Additionally, if the player
-// failed a straight 7 bias, try to taunt them with a 7 mismatch.
-//
-// There are up to four stages:
-//
-// 1. Advance the reel as if 2 coins were bet: to mildly oversimplify, spin
-//    until there's no matches straight across in any rows.
-//
-// 2. [Optional] If you've lined up two opposite-color 7's diagonally and the
-//    machine is biased toward straight 7's:
-//      Check if a 7 with the same color as reel 1 appears in the final diagonal
-//      position within 4 turns. If so, advance to that position.
-//
-// 3. Check NWSE diagonal. Keep advancing the reel a turn at a time as long as:
-//     - There is a match in the diagonal
-//     - Or, there is a 7 mismatch in the diagonal and the machine isn't
-//       biased toward straight 7's
-//
-// 3. Check NESW diagonal. Keep advancing the reel a turn at a time as long as:
-//     - There is a match in the diagonal
-//     - Or, there is a 7 mismatch in the diagonal and the machine isn't
-//       biased toward straight 7's
-//
-// Note that stages 3 and 4 are not limited to 4 turns.
-//
-// Also, note that it actually is possible to win a match here. After stage 1,
-// the game never again checks whether it will be matching any rows straight
-// across. So any extra turns added in stages 2-4 could result in a match
-// occurring straight across.
-static void DecideStop_NoBias_Reel3_Bet3(void)
+static void DecideReelTurns_NoBiasTag_Reel3_Bet3(void)
 {
-    u8 sym1;
-    u8 sym2;
-    u8 sym3;
-    s16 row;
+    u8 tag1;
+    u8 tag2;
+    u8 tag3;
+    s16 j;
     s16 i;
 
-    // Spin until there's no matches in any row straight across, potentially
-    // skewing toward a 7 mismatch. Consider this the new starting position for
-    // this function.
-    DecideStop_NoBias_Reel3_Bet2();
-
-    // Essentially, if you lined up two 7's diagonally
-    if (sSlotMachine->winnerRows[1] != 0 &&
-        sSlotMachine->winnerRows[0] != sSlotMachine->winnerRows[1] &&
-        sSlotMachine->machineBias & BIAS_STRAIGHT_7)
+    DecideReelTurns_NoBiasTag_Reel3_Bet2();
+    if (sSlotMachine->winnerRows[1] != 0 && sSlotMachine->winnerRows[0] != sSlotMachine->winnerRows[1] && sSlotMachine->luckyFlags & LUCKY_BIAS_777)
     {
-        sym1 = GetSymbol(LEFT_REEL, sSlotMachine->winnerRows[0] - sSlotMachine->reelExtraTurns[0]);
-        sym2 = GetSymbol(MIDDLE_REEL, sSlotMachine->winnerRows[1] - sSlotMachine->reelExtraTurns[1]);
-
-        // If the first two 7's are opposite colors, try advancing up to 4
-        // additional turns to line up a diagonal 7 mismatch. More turns may be
-        // added further below.
-        if (MismatchedSyms_77(sym1, sym2))
+        tag1 = GetTag(LEFT_REEL, sSlotMachine->winnerRows[0] - sSlotMachine->reelExtraTurns[0]);
+        tag2 = GetTag(MIDDLE_REEL, sSlotMachine->winnerRows[1] - sSlotMachine->reelExtraTurns[1]);
+        //..and if tags are mixed 7s...
+        if (AreTagsMixed77(tag1, tag2))
         {
-            row = 1;
+            j = 1;
             if (sSlotMachine->winnerRows[0] == 1)
-                row = 3;
-            for (i = 0; i <= MAX_EXTRA_TURNS; i++)
+                j = 3;
+            for (i = 0; i < 5; i++)
             {
-                sym3 = GetSymbol(RIGHT_REEL, row - (sSlotMachine->reelExtraTurns[2] + i));
-                if (sym1 == sym3)
+                tag3 = GetTag(RIGHT_REEL, j - (sSlotMachine->reelExtraTurns[2] + i));
+                if (tag1 == tag3)
                 {
                     sSlotMachine->reelExtraTurns[2] += i;
                     break;
@@ -3157,27 +2691,21 @@ static void DecideStop_NoBias_Reel3_Bet3(void)
             }
         }
     }
-
-    while (TRUE)
+    while (1)
     {
-        // Check NWSE diagonal
-        sym1 = GetSymbol(LEFT_REEL, 1 - sSlotMachine->reelExtraTurns[0]);
-        sym2 = GetSymbol(MIDDLE_REEL, 2 - sSlotMachine->reelExtraTurns[1]);
-        sym3 = GetSymbol(RIGHT_REEL, 3 - sSlotMachine->reelExtraTurns[2]);
-        if (NeitherMatchNor7Mismatch(sym1, sym2, sym3)
-            || (MismatchedSyms_777(sym1, sym2, sym3) && sSlotMachine->machineBias & BIAS_STRAIGHT_7))
+        tag1 = GetTag(LEFT_REEL, 1 - sSlotMachine->reelExtraTurns[0]);
+        tag2 = GetTag(MIDDLE_REEL, 2 - sSlotMachine->reelExtraTurns[1]);
+        tag3 = GetTag(RIGHT_REEL, 3 - sSlotMachine->reelExtraTurns[2]);
+        if (TagsDontMatchOrHaveAny7s(tag1, tag2, tag3) || (AreTagsMixed777(tag1, tag2, tag3) && sSlotMachine->luckyFlags & LUCKY_BIAS_777))
             break;
         sSlotMachine->reelExtraTurns[2]++;
     }
-
-    while (TRUE)
+    while (1)
     {
-        // Check NESW diagonal
-        sym1 = GetSymbol(LEFT_REEL, 3 - sSlotMachine->reelExtraTurns[0]);
-        sym2 = GetSymbol(MIDDLE_REEL, 2 - sSlotMachine->reelExtraTurns[1]);
-        sym3 = GetSymbol(RIGHT_REEL, 1 - sSlotMachine->reelExtraTurns[2]);
-        if (NeitherMatchNor7Mismatch(sym1, sym2, sym3)
-            || (MismatchedSyms_777(sym1, sym2, sym3) && sSlotMachine->machineBias & BIAS_STRAIGHT_7))
+        tag1 = GetTag(LEFT_REEL, 3 - sSlotMachine->reelExtraTurns[0]);
+        tag2 = GetTag(MIDDLE_REEL, 2 - sSlotMachine->reelExtraTurns[1]);
+        tag3 = GetTag(RIGHT_REEL, 1 - sSlotMachine->reelExtraTurns[2]);
+        if (TagsDontMatchOrHaveAny7s(tag1, tag2, tag3) || (AreTagsMixed777(tag1, tag2, tag3) && sSlotMachine->luckyFlags & LUCKY_BIAS_777))
             break;
         sSlotMachine->reelExtraTurns[2]++;
     }
@@ -3192,7 +2720,7 @@ static void PressStopReelButton(u8 reelNum)
 
 static void Task_PressStopReelButton(u8 taskId)
 {
-    sReelStopButtonTasks[gTasks[taskId].data[0]](&gTasks[taskId], taskId);
+    sReelStopButtonFuncs[gTasks[taskId].data[0]](&gTasks[taskId], taskId);
 }
 
 static void StopReelButton_Press(struct Task *task, u8 taskId)
@@ -3398,11 +2926,11 @@ static void CreatePikaPowerBoltTask(void)
     sSlotMachine->pikaPowerBoltTaskId = CreateTask(Task_CreatePikaPowerBolt, 8);
 }
 
-static void AddPikaPowerBolt(u8 bolts)
+static void AddPikaPowerBolt(u8 pikaPower)
 {
     struct Task *task = &gTasks[sSlotMachine->pikaPowerBoltTaskId];
     ResetPikaPowerBoltTask(task);
-    task->tState = PIKABOLT_TASK_ADD_BOLT;
+    task->tState = 1;
     task->tNumBolts++;
     task->tAnimating = TRUE;
 }
@@ -3411,7 +2939,7 @@ static void ResetPikaPowerBolts(void)
 {
     struct Task *task = &gTasks[sSlotMachine->pikaPowerBoltTaskId];
     ResetPikaPowerBoltTask(task);
-    task->tState = PIKABOLT_TASK_CLEAR_ALL;
+    task->tState = 3;
     task->tAnimating = TRUE;
 }
 
@@ -3422,7 +2950,7 @@ static bool8 IsPikaPowerBoltAnimating(void)
 
 static void Task_CreatePikaPowerBolt(u8 taskId)
 {
-    sPikaPowerBoltTasks[gTasks[taskId].tState](&gTasks[taskId]);
+    sPikaPowerBoltFuncs[gTasks[taskId].tState](&gTasks[taskId]);
 }
 
 static void PikaPowerBolt_Idle(struct Task *task)
@@ -3432,7 +2960,7 @@ static void PikaPowerBolt_Idle(struct Task *task)
 static void PikaPowerBolt_AddBolt(struct Task *task)
 {
     task->tSpriteId = CreatePikaPowerBoltSprite((task->tNumBolts << 3) + 20, 20);
-    task->tState++; // PIKABOLT_TASK_WAIT_ANIM
+    task->tState++;
 }
 
 // The bolt sprite spins around as it appears
@@ -3451,7 +2979,7 @@ static void PikaPowerBolt_WaitAnim(struct Task *task)
         sSelectedPikaPowerTile[r2] = sPikaPowerTileTable[r3][0];
         LoadBgTilemap(2, &sSelectedPikaPowerTile[r2], 2, r5 + 0x40);
         DestroyPikaPowerBoltSprite(task->tSpriteId);
-        task->tState = PIKABOLT_TASK_IDLE;
+        task->tState = 0;
         task->tAnimating = 0;
     }
 }
@@ -3475,7 +3003,7 @@ static void PikaPowerBolt_ClearAll(struct Task *task)
         task->tTimer = 0;
     if (task->tNumBolts == 0)
     {
-        task->tState = PIKABOLT_TASK_IDLE;
+        task->tState = 0;
         task->tAnimating = 0;
     }
 }
@@ -3488,17 +3016,17 @@ static void ResetPikaPowerBoltTask(struct Task *task)
         task->data[i] = 0;
 }
 
-static void LoadPikaPowerMeter(u8 bolts)
+static void LoadPikaPowerMeter(u8 pikaPower)
 {
     s16 i;
     s16 r3 = 0, r1 = 0;
     s16 r4 = 3;
-    for (i = 0; i < bolts; i++, r4++)
+    for (i = 0; i < pikaPower; i++, r4++)
     {
         r3 = 0, r1 = 0;
         if (i == 0)
             r3 = 1, r1 = 1;
-        else if (i == 15) // meter is full
+        else if (i == 15) // pikaPower meter is full
             r3 = 2, r1 = 2;
         sSelectedPikaPowerTile[r1] = sPikaPowerTileTable[r3][0];
         LoadBgTilemap(2, &sSelectedPikaPowerTile[r1], 2, r4 + 0x40);
@@ -3513,7 +3041,7 @@ static void LoadPikaPowerMeter(u8 bolts)
         sSelectedPikaPowerTile[r1] = sPikaPowerTileTable[r3][1];
         LoadBgTilemap(2, &sSelectedPikaPowerTile[r1], 2, r4 + 0x40);
     }
-    gTasks[sSlotMachine->pikaPowerBoltTaskId].data[1] = bolts;
+    gTasks[sSlotMachine->pikaPowerBoltTaskId].data[1] = pikaPower;
 }
 
 #undef tState
@@ -3522,13 +3050,7 @@ static void LoadPikaPowerMeter(u8 bolts)
 #undef tTimer
 #undef tAnimating
 
-#define tState         data[0]
-#define tReelSpeed     data[1]
-#define tTimer3        data[2]
-#define tRtReelSpeed   data[4]
-#define tTimer2        data[4]
-#define tTimer1        data[5]
-#define tExplodeChecks data[6]
+#define tState data[0]
 
 static void BeginReelTime(void)
 {
@@ -3545,7 +3067,10 @@ static bool8 IsReelTimeTaskDone(void)
 
 static void Task_ReelTime(u8 taskId)
 {
-    sReelTimeTasks[gTasks[taskId].tState](&gTasks[taskId]);
+    // task.data[1] has something to do with the threshold
+    // task.data[4] says how many pixels to advance the reel
+    // task.data[5] is a timer
+    sReelTimeActions[gTasks[taskId].tState](&gTasks[taskId]);
 }
 
 static void ReelTime_Init(struct Task *task)
@@ -3553,10 +3078,10 @@ static void ReelTime_Init(struct Task *task)
     sSlotMachine->reelTimeSpinsLeft = 0;
     sSlotMachine->reeltimePixelOffset = 0;
     sSlotMachine->reeltimePosition = 0;
-    task->tState++; // RT_TASK_WINDOW_ENTER
+    task->tState++;
     task->data[1] = 0;
     task->data[2] = 30;
-    task->tRtReelSpeed = 1280;
+    task->data[4] = 1280; // reel speed
     gSpriteCoordOffsetX = 0;
     gSpriteCoordOffsetY = 0;
     SetGpuReg(REG_OFFSET_BG1HOFS, 0);
@@ -3567,7 +3092,7 @@ static void ReelTime_Init(struct Task *task)
     CreateReelTimeNumberSprites();
     CreateReelTimeShadowSprites();
     CreateReelTimeNumberGapSprite();
-    GetReelTimeDraw();
+    GetReeltimeDraw();
     StopMapMusic();
     PlayNewMapMusic(MUS_ROULETTE);
 }
@@ -3587,18 +3112,18 @@ static void ReelTime_WindowEnter(struct Task *task)
     }
     if (task->data[1] >= 200)
     {
-        task->tState++; // RT_TASK_WAIT_START_PIKA
+        task->tState++;
         task->data[3] = 0;
     }
-    AdvanceReeltimeReel(task->tRtReelSpeed >> 8);
+    AdvanceReeltimeReel(task->data[4] >> 8);
 }
 
 static void ReelTime_WaitStartPikachu(struct Task *task)
 {
-    AdvanceReeltimeReel(task->tRtReelSpeed >> 8);
-    if (++task->tTimer1 >= 60)
+    AdvanceReeltimeReel(task->data[4] >> 8);
+    if (++task->data[5] >= 60)
     {
-        task->tState++; // RT_TASK_PIKA_SPEEDUP1
+        task->tState++;
         CreateReelTimeBoltSprites();
         CreateReelTimePikachuAuraSprites();
     }
@@ -3615,29 +3140,29 @@ static void ReelTime_PikachuSpeedUp1(struct Task *task)
     memcpy(reelTimeBoltDelays, sReelTimeBoltDelays, sizeof(sReelTimeBoltDelays));
     memcpy(pikachuAuraFlashDelays, sPikachuAuraFlashDelays, sizeof(sPikachuAuraFlashDelays));
 
-    AdvanceReeltimeReel(task->tRtReelSpeed >> 8);
+    AdvanceReeltimeReel(task->data[4] >> 8);
     // gradually slow down the reel
-    task->tRtReelSpeed -= 4;
-    i = 4 - (task->tRtReelSpeed >> 8);
+    task->data[4] -= 4;
+    i = 4 - (task->data[4] >> 8);
     SetReelTimeBoltDelay(reelTimeBoltDelays[i]);
     SetReelTimePikachuAuraFlashDelay(pikachuAuraFlashDelays[i]);
     StartSpriteAnimIfDifferent(&gSprites[sSlotMachine->reelTimePikachuSpriteId], pikachuAnimIds[i]);
-    // once speed goes below 256, go to next ReelTime task and keep the speed level
-    if (task->tRtReelSpeed <= 0x100)
+    // once speed goes below 256, go to next ReelTimeAction and keep the speed level
+    if (task->data[4] <= 0x100)
     {
-        task->tState++; // RT_TASK_PIKA_SPEEDUP2
-        task->tRtReelSpeed = 0x100;
-        task->tTimer1 = 0;
+        task->tState++;
+        task->data[4] = 0x100;
+        task->data[5] = 0;
     }
 }
 
 static void ReelTime_PikachuSpeedUp2(struct Task *task)
 {
-    AdvanceReeltimeReel(task->tRtReelSpeed >> 8);
-    if (++task->tTimer1 >= 80)
+    AdvanceReeltimeReel(task->data[4] >> 8);
+    if (++task->data[5] >= 80)
     {
-        task->tState++; // RT_TASK_WAIT_REEL
-        task->tTimer1 = 0;
+        task->tState++;
+        task->data[5] = 0;
         SetReelTimePikachuAuraFlashDelay(2);
         StartSpriteAnimIfDifferent(&gSprites[sSlotMachine->reelTimePikachuSpriteId], 3);
     }
@@ -3645,94 +3170,83 @@ static void ReelTime_PikachuSpeedUp2(struct Task *task)
 
 static void ReelTime_WaitReel(struct Task *task)
 {
-    AdvanceReeltimeReel(task->tRtReelSpeed >> 8);
-    task->tRtReelSpeed = (u8)task->tRtReelSpeed + 0x80;
-    if (++task->tTimer1 >= 80)
+    AdvanceReeltimeReel(task->data[4] >> 8);
+    task->data[4] = (u8)task->data[4] + 0x80;
+    if (++task->data[5] >= 80)
     {
-        task->tState++; // RT_TASK_CHECK_EXPLODE
-        task->tTimer1 = 0;
+        task->tState++;
+        task->data[5] = 0;
     }
 }
 
-// Check whether the ReelTime machine should explode.
-//
-// The ReelTime machine displays 0 when this task starts. If there is a positive
-// ReelTime draw, the machine keeps spinning until it lands on that number.
-//
-// Otherwise, it checks every 40 frames whether it should explode. If so, it
-// explodes immediately. After 4 checks, the machine won't explode but continues
-// to spin until it lands on 0.
 static void ReelTime_CheckExplode(struct Task *task)
 {
-    AdvanceReeltimeReel(task->tRtReelSpeed >> 8);
-    task->tRtReelSpeed = (u8)task->tRtReelSpeed + 0x40;
-    if (++task->tTimer1 >= 40)
+    AdvanceReeltimeReel(task->data[4] >> 8);
+    task->data[4] = (u8)task->data[4] + 0x40;
+    if (++task->data[5] >= 40)
     {
-        task->tTimer1 = 0;
+        task->data[5] = 0;
         if (sSlotMachine->reelTimeDraw)
         {
-            if (sSlotMachine->reelTimeSpinsLeft <= task->tExplodeChecks)
-                task->tState++; // RT_TASK_LAND 
+            if (sSlotMachine->reelTimeSpinsLeft <= task->data[6])
+                task->tState++;
         }
-        else if (task->tExplodeChecks > 3)
+        else if (task->data[6] > 3)
         {
-            task->tState++; // RT_TASK_LAND
+            task->tState++;
         }
-        else if (ShouldReelTimeMachineExplode(task->tExplodeChecks))
+        else if (ShouldReelTimeMachineExplode(task->data[6]))
         {
-            task->tState = RT_TASK_EXPLODE;
+            task->tState = 14; // ReelTime_ExplodeMachine
         }
-        task->tExplodeChecks++;
+        task->data[6]++;
     }
 }
 
-// Reel spins until it lands on the selected outcome.
 static void ReelTime_LandOnOutcome(struct Task *task)
 {
     s16 reeltimePixelOffset = sSlotMachine->reeltimePixelOffset % 20;
     if (reeltimePixelOffset)
     {
-        reeltimePixelOffset = AdvanceReeltimeReelToNextSymbol(task->tRtReelSpeed >> 8);
-        task->tRtReelSpeed = (u8)task->tRtReelSpeed + 0x40;
+        reeltimePixelOffset = AdvanceReeltimeReelToNextTag(task->data[4] >> 8);
+        task->data[4] = (u8)task->data[4] + 0x40;
     }
-    else if (GetReelTimeSymbol(1) != sSlotMachine->reelTimeDraw)
+    else if (GetNearbyReelTimeTag(1) != sSlotMachine->reelTimeDraw)
     {
-        AdvanceReeltimeReel(task->tRtReelSpeed >> 8);
+        AdvanceReeltimeReel(task->data[4] >> 8);
         reeltimePixelOffset = sSlotMachine->reeltimePixelOffset % 20;
-        task->tRtReelSpeed = (u8)task->tRtReelSpeed + 0x40;
+        task->data[4] = (u8)task->data[4] + 0x40;
     }
-    if (reeltimePixelOffset == 0 && GetReelTimeSymbol(1) == sSlotMachine->reelTimeDraw)
+    if (reeltimePixelOffset == 0 && GetNearbyReelTimeTag(1) == sSlotMachine->reelTimeDraw)
     {
-        task->tRtReelSpeed = 0; // Also initializes task->tTimer2
-        task->tState++; // RT_TASK_PIKA_REACT
+        task->data[4] = 0;  // stop moving
+        task->tState++;
     }
 }
 
-// Animate Pikachu reaction. Clear any power bolts the player may have won if
-// they got a positive ReelTime draw.
 static void ReelTime_PikachuReact(struct Task *task)
 {
-    if (++task->tTimer2 >= 60)
+    if (++task->data[4] >= 60)
     {
         StopMapMusic();
         DestroyReelTimeBoltSprites();
         DestroyReelTimePikachuAuraSprites();
-        task->tState++; // RT_TASK_WAIT_CLEAR_POWER
+        task->tState++;
         if(sSlotMachine->reelTimeDraw == 0)
         {
-            task->tTimer2 = 0xa0;
+            task->data[4] = 0xa0;
             StartSpriteAnimIfDifferent(&gSprites[sSlotMachine->reelTimePikachuSpriteId], 5);
             PlayFanfare(MUS_TOO_BAD);
         }
         else
         {
-            task->tTimer2 = 0xc0;
+            task->data[4] = 0xc0;
             StartSpriteAnimIfDifferent(&gSprites[sSlotMachine->reelTimePikachuSpriteId], 4);
             gSprites[sSlotMachine->reelTimePikachuSpriteId].animCmdIndex = 0;
-            if (sSlotMachine->pikaPowerBolts)
+            if (sSlotMachine->pikaPower)
             {
                 ResetPikaPowerBolts();
-                sSlotMachine->pikaPowerBolts = 0;
+                sSlotMachine->pikaPower = 0;
             }
             PlayFanfare(MUS_SLOTS_WIN);
         }
@@ -3741,8 +3255,8 @@ static void ReelTime_PikachuReact(struct Task *task)
 
 static void ReelTime_WaitClearPikaPower(struct Task *task)
 {
-    if ((task->tTimer2 == 0 || --task->tTimer2 == 0) && !IsPikaPowerBoltAnimating())
-        task->tState++; // RT_TASK_CLOSE_WINDOW_SUCCESS
+    if ((task->data[4] == 0 || --task->data[4] == 0) && !IsPikaPowerBoltAnimating())
+        task->tState++;
 }
 
 static void ReelTime_CloseWindow(struct Task *task)
@@ -3756,20 +3270,16 @@ static void ReelTime_CloseWindow(struct Task *task)
     if (task->data[3] >> 3 <= 25)
         ClearReelTimeWindowTilemap(r4);
     else
-        task->tState++; // RT_TASK_DESTROY_SPRITES
+        task->tState++;
 }
 
-// Destroy sprites and wrap up the ReelTime task.
-//
-// If the player got a positive ReelTime draw, select the speed that the slot
-// reels will initially move at.
 static void ReelTime_DestroySprites(struct Task *task)
 {
     sSlotMachine->reelTimeSpinsUsed = 0;
     sSlotMachine->reelTimeSpinsLeft = sSlotMachine->reelTimeDraw;
     gSpriteCoordOffsetX = 0;
     SetGpuReg(REG_OFFSET_BG1HOFS, 0);
-    sSlotMachine->reelSpeed = REEL_NORMAL_SPEED;
+    sSlotMachine->reelIncrement = 8;
     DestroyReelTimePikachuSprite();
     DestroyReelTimeMachineSprites();
     DestroyReelTimeShadowSprites();
@@ -3781,20 +3291,19 @@ static void ReelTime_DestroySprites(struct Task *task)
     else
     {
         CreateDigitalDisplayScene(DIG_DISPLAY_REEL_TIME);
-        task->tReelSpeed = ReelTimeSpeed();
-        task->tTimer3 = 0;
+        task->data[1] = SlowReelSpeed();
+        task->data[2] = 0;
         task->data[3] = 0;
-        task->tState++; // RT_TASK_SET_REEL_SPEED
+        task->tState++;
     }
 }
 
-// Slow the slot reels down until they match the selected speed.
-static void ReelTime_SetReelSpeed(struct Task *task)
+static void ReelTime_SetReelIncrement(struct Task *task)
 {
-    if (sSlotMachine->reelSpeed == task->tReelSpeed)
-        task->tState++; // RT_TASK_END_SUCCESS
-    else if (sSlotMachine->reelPixelOffsets[0] % REEL_SYMBOL_HEIGHT == 0 && (++task->tTimer3 & 0x07) == 0)
-        sSlotMachine->reelSpeed >>= 1;
+    if (sSlotMachine->reelIncrement == task->data[1])
+        task->tState++;
+    else if (sSlotMachine->reelPixelOffsets[0] % REEL_SYMBOL_HEIGHT == 0 && (++task->data[2]& 0x07) == 0)
+        sSlotMachine->reelIncrement >>= 1;
 }
 
 static void ReelTime_EndSuccess(struct Task *task)
@@ -3811,9 +3320,9 @@ static void ReelTime_ExplodeMachine(struct Task *task)
     CreateReelTimeExplosionSprite();
     gSprites[sSlotMachine->reelTimeShadowSpriteIds[0]].invisible = TRUE;
     StartSpriteAnimIfDifferent(&gSprites[sSlotMachine->reelTimePikachuSpriteId], 5);
-    task->tState++; // RT_TASK_WAIT_EXPLODE
+    task->tState++;
     task->data[4] = 4;
-    task->tTimer1 = 0;
+    task->data[5] = 0;
     StopMapMusic();
     PlayFanfare(MUS_TOO_BAD);
     PlaySE(SE_M_EXPLOSION);
@@ -3823,9 +3332,9 @@ static void ReelTime_WaitExplode(struct Task *task)
 {
     gSpriteCoordOffsetY = task->data[4];
     SetGpuReg(REG_OFFSET_BG1VOFS, task->data[4]);
-    if (task->tTimer1 & 0x01)
+    if (task->data[5] & 0x01)
         task->data[4] = -task->data[4];
-    if ((++task->tTimer1 & 0x1f) == 0)
+    if ((++task->data[5] & 0x1f) == 0)
         task->data[4] >>= 1;
     if (task->data[4] == 0)
     {
@@ -3834,8 +3343,8 @@ static void ReelTime_WaitExplode(struct Task *task)
         CreateBrokenReelTimeMachineSprite();
         CreateReelTimeSmokeSprite();
         gSprites[sSlotMachine->reelTimeShadowSpriteIds[0]].invisible = FALSE;
-        task->tState++; // RT_TASK_WAIT_SMOKE
-        task->tTimer1 = 0;
+        task->tState++;
+        task->data[5] = 0;
     }
 }
 
@@ -3845,7 +3354,7 @@ static void ReelTime_WaitSmoke(struct Task *task)
     SetGpuReg(REG_OFFSET_BG1VOFS, 0);
     if (IsReelTimeSmokeAnimFinished())
     {
-        task->tState++; // RT_TASK_CLOSE_WINDOW_FAILURE
+        task->tState++;
         DestroyReelTimeSmokeSprite();
     }
 }
@@ -3883,33 +3392,28 @@ static void ClearReelTimeWindowTilemap(s16 a0)
 }
 
 #undef tState
-#undef tReelSpeed
-#undef tRtReelSpeed
-#undef tTimer2
-#undef tTimer1
-#undef tExplodeChecks
 
 #define tState data[0]
 
 // Info Box is the screen shown when Select is pressed
 static void OpenInfoBox(u8 digDisplayId)
 {
-    u8 taskId = CreateTask(Task_InfoBox, 1);
+    u8 taskId = CreateTask(RunInfoBoxActions, 1);
     gTasks[taskId].data[1] = digDisplayId;
-    Task_InfoBox(taskId);
+    RunInfoBoxActions(taskId);
 }
 
 static bool8 IsInfoBoxClosed(void)
 {
-    if (FindTaskIdByFunc(Task_InfoBox) == TASK_NONE)
+    if (FindTaskIdByFunc(RunInfoBoxActions) == TASK_NONE)
         return TRUE;
     else
         return FALSE;
 }
 
-static void Task_InfoBox(u8 taskId)
+static void RunInfoBoxActions(u8 taskId)
 {
-    sInfoBoxTasks[gTasks[taskId].tState](&gTasks[taskId]);
+    sInfoBoxActions[gTasks[taskId].tState](&gTasks[taskId]);
 }
 
 static void InfoBox_FadeIn(struct Task *task)
@@ -3918,7 +3422,7 @@ static void InfoBox_FadeIn(struct Task *task)
     task->tState++;
 }
 
-static void InfoBox_WaitFade(struct Task *task)
+static void InfoBox_WaitForFade(struct Task *task)
 {
     if (!gPaletteFade.active)
         task->tState++;
@@ -3942,7 +3446,7 @@ static void InfoBox_AddText(struct Task *task)
     task->tState++;
 }
 
-static void InfoBox_WaitInput(struct Task *task)
+static void InfoBox_AwaitPlayerInput(struct Task *task)
 {
     if (JOY_NEW(B_BUTTON | SELECT_BUTTON))
     {
@@ -3970,14 +3474,14 @@ static void InfoBox_CreateDigitalDisplay(struct Task *task)
 
 static void InfoBox_LoadPikaPowerMeter(struct Task *task)
 {
-    LoadPikaPowerMeter(sSlotMachine->pikaPowerBolts);
+    LoadPikaPowerMeter(sSlotMachine->pikaPower);
     BeginNormalPaletteFade(PALETTES_ALL, 0, 16, 0, RGB(0, 0, 0));
     task->tState++;
 }
 
 static void InfoBox_FreeTask(struct Task *task)
 {
-    DestroyTask(FindTaskIdByFunc(Task_InfoBox));
+    DestroyTask(FindTaskIdByFunc(RunInfoBoxActions));
 }
 
 #undef tState
@@ -4068,7 +3572,7 @@ static bool8 IsDigitalDisplayAnimFinished(void)
 
 static void Task_DigitalDisplay(u8 taskId)
 {
-    sDigitalDisplayTasks[gTasks[taskId].data[0]](&gTasks[taskId]);
+    sDigitalDisplayActions[gTasks[taskId].data[0]](&gTasks[taskId]);
 }
 
 static void DigitalDisplay_Idle(struct Task *task)
@@ -4097,8 +3601,8 @@ static void SpriteCB_ReelSymbol(struct Sprite *sprite)
 {
     sprite->data[2] = sSlotMachine->reelPixelOffsets[sprite->data[0]] + sprite->data[1];
     sprite->data[2] %= 120;
-    sprite->y = sSlotMachine->reelShockOffsets[sprite->data[0]] + 28 + sprite->data[2];
-    sprite->sheetTileStart = GetSpriteTileStartByTag(GetSymbolAtRest(sprite->data[0], sprite->data[2] / 24));
+    sprite->y = sSlotMachine->reelPixelOffsetsWhileStopping[sprite->data[0]] + 28 + sprite->data[2];
+    sprite->sheetTileStart = GetSpriteTileStartByTag(GetTagAtRest(sprite->data[0], sprite->data[2] / 24));
     SetSpriteSheetFrameTileNum(sprite);
 }
 
@@ -4269,7 +3773,7 @@ static void SpriteCB_ReelTimeNumbers(struct Sprite *sprite)
     s16 r0 = (u16)(sSlotMachine->reeltimePixelOffset + sprite->data[7]);
     r0 %= 40;
     sprite->y = r0 + 59;
-    StartSpriteAnimIfDifferent(sprite, GetReelTimeSymbol(r0 / 20));
+    StartSpriteAnimIfDifferent(sprite, GetNearbyReelTimeTag(r0 / 20));
 }
 
 static void CreateReelTimeShadowSprites(void)
@@ -5216,92 +4720,90 @@ static void AllocDigitalDisplayGfx(void)
     sImageTable_DigitalDisplay_DPad[1].size = 0x180;
 }
 
-static const u8 sReelSymbols[NUM_REELS][SYMBOLS_PER_REEL] =
+static const u8 sReelSymbolTileTags[NUM_REELS][SYMBOLS_PER_REEL] =
 {
     [LEFT_REEL] = {
-        SYMBOL_7_RED,
-        SYMBOL_CHERRY,
-        SYMBOL_AZURILL,
-        SYMBOL_REPLAY,
-        SYMBOL_POWER,
-        SYMBOL_LOTAD,
-        SYMBOL_7_BLUE,
-        SYMBOL_LOTAD,
-        SYMBOL_CHERRY,
-        SYMBOL_POWER,
-        SYMBOL_REPLAY,
-        SYMBOL_AZURILL,
-        SYMBOL_7_RED,
-        SYMBOL_POWER,
-        SYMBOL_LOTAD,
-        SYMBOL_REPLAY,
-        SYMBOL_AZURILL,
-        SYMBOL_7_BLUE,
-        SYMBOL_POWER,
-        SYMBOL_LOTAD,
-        SYMBOL_REPLAY
+        GFXTAG_7_RED,
+        GFXTAG_CHERRY,
+        GFXTAG_AZURILL,
+        GFXTAG_REPLAY,
+        GFXTAG_POWER,
+        GFXTAG_LOTAD,
+        GFXTAG_7_BLUE,
+        GFXTAG_LOTAD,
+        GFXTAG_CHERRY,
+        GFXTAG_POWER,
+        GFXTAG_REPLAY,
+        GFXTAG_AZURILL,
+        GFXTAG_7_RED,
+        GFXTAG_POWER,
+        GFXTAG_LOTAD,
+        GFXTAG_REPLAY,
+        GFXTAG_AZURILL,
+        GFXTAG_7_BLUE,
+        GFXTAG_POWER,
+        GFXTAG_LOTAD,
+        GFXTAG_REPLAY
     },
     [MIDDLE_REEL] = {
-        SYMBOL_7_RED,
-        SYMBOL_CHERRY,
-        SYMBOL_REPLAY,
-        SYMBOL_LOTAD,
-        SYMBOL_AZURILL,
-        SYMBOL_CHERRY,
-        SYMBOL_REPLAY,
-        SYMBOL_POWER,
-        SYMBOL_POWER,
-        SYMBOL_LOTAD,
-        SYMBOL_7_BLUE,
-        SYMBOL_LOTAD,
-        SYMBOL_REPLAY,
-        SYMBOL_CHERRY,
-        SYMBOL_AZURILL,
-        SYMBOL_LOTAD,
-        SYMBOL_REPLAY,
-        SYMBOL_CHERRY,
-        SYMBOL_LOTAD,
-        SYMBOL_REPLAY,
-        SYMBOL_CHERRY
+        GFXTAG_7_RED,
+        GFXTAG_CHERRY,
+        GFXTAG_REPLAY,
+        GFXTAG_LOTAD,
+        GFXTAG_AZURILL,
+        GFXTAG_CHERRY,
+        GFXTAG_REPLAY,
+        GFXTAG_POWER,
+        GFXTAG_POWER,
+        GFXTAG_LOTAD,
+        GFXTAG_7_BLUE,
+        GFXTAG_LOTAD,
+        GFXTAG_REPLAY,
+        GFXTAG_CHERRY,
+        GFXTAG_AZURILL,
+        GFXTAG_LOTAD,
+        GFXTAG_REPLAY,
+        GFXTAG_CHERRY,
+        GFXTAG_LOTAD,
+        GFXTAG_REPLAY,
+        GFXTAG_CHERRY
     },
     [RIGHT_REEL] = {
-        SYMBOL_7_RED,
-        SYMBOL_POWER,
-        SYMBOL_7_BLUE,
-        SYMBOL_REPLAY,
-        SYMBOL_LOTAD,
-        SYMBOL_AZURILL,
-        SYMBOL_REPLAY,
-        SYMBOL_LOTAD,
-        SYMBOL_POWER,
-        SYMBOL_AZURILL,
-        SYMBOL_REPLAY,
-        SYMBOL_LOTAD,
-        SYMBOL_AZURILL,
-        SYMBOL_POWER,
-        SYMBOL_REPLAY,
-        SYMBOL_LOTAD,
-        SYMBOL_AZURILL,
-        SYMBOL_POWER,
-        SYMBOL_REPLAY,
-        SYMBOL_LOTAD,
-        SYMBOL_CHERRY
+        GFXTAG_7_RED,
+        GFXTAG_POWER,
+        GFXTAG_7_BLUE,
+        GFXTAG_REPLAY,
+        GFXTAG_LOTAD,
+        GFXTAG_AZURILL,
+        GFXTAG_REPLAY,
+        GFXTAG_LOTAD,
+        GFXTAG_POWER,
+        GFXTAG_AZURILL,
+        GFXTAG_REPLAY,
+        GFXTAG_LOTAD,
+        GFXTAG_AZURILL,
+        GFXTAG_POWER,
+        GFXTAG_REPLAY,
+        GFXTAG_LOTAD,
+        GFXTAG_AZURILL,
+        GFXTAG_POWER,
+        GFXTAG_REPLAY,
+        GFXTAG_LOTAD,
+        GFXTAG_CHERRY
     },
 };
 
-static const u8 sReelTimeSymbols[] = {
+static const u8 sReelTimeTags[] = {
     1, 0, 5, 4, 3, 2
 };
 
-// Column 0: Normal game
-// Column 1: Lucky game
 static const s16 sInitialReelPositions[NUM_REELS][2] = {
     [LEFT_REEL]   = {0,  6},
     [MIDDLE_REEL] = {0, 10},
     [RIGHT_REEL]  = {0,  2}
 };
 
-static const u8 sSpecialDrawOdds[NUM_SLOT_MACHINE_IDS][MAX_BET] = {
+static const u8 sLuckyRoundProbabilities[NUM_SLOT_MACHINE_IDS][MAX_BET] = {
     [SLOT_MACHINE_UNLUCKIEST] = {1, 1, 12},
     [SLOT_MACHINE_UNLUCKIER]  = {1, 1, 14},
     [SLOT_MACHINE_UNLUCKY]    = {2, 2, 14},
@@ -5310,9 +4812,8 @@ static const u8 sSpecialDrawOdds[NUM_SLOT_MACHINE_IDS][MAX_BET] = {
     [SLOT_MACHINE_LUCKIEST]   = {3, 3, 16}
 };
 
-static const u8 sBiasProbabilities_Special[][NUM_SLOT_MACHINE_IDS] = {
-    { 
-        // Probabilities for BIAS_STRAIGHT_7
+static const u8 sLuckyFlagProbabilities_Top3[][NUM_SLOT_MACHINE_IDS] = {
+    { // Probabilities for LUCKY_BIAS_777
         [SLOT_MACHINE_UNLUCKIEST] = 25,
         [SLOT_MACHINE_UNLUCKIER]  = 25,
         [SLOT_MACHINE_UNLUCKY]    = 30,
@@ -5320,8 +4821,7 @@ static const u8 sBiasProbabilities_Special[][NUM_SLOT_MACHINE_IDS] = {
         [SLOT_MACHINE_LUCKIER]    = 40,
         [SLOT_MACHINE_LUCKIEST]   = 50
     },
-    { 
-        // Probabilities for BIAS_REELTIME
+    { // Probabilities for LUCKY_BIAS_REELTIME
         [SLOT_MACHINE_UNLUCKIEST] = 25,
         [SLOT_MACHINE_UNLUCKIER]  = 25,
         [SLOT_MACHINE_UNLUCKY]    = 30,
@@ -5329,8 +4829,7 @@ static const u8 sBiasProbabilities_Special[][NUM_SLOT_MACHINE_IDS] = {
         [SLOT_MACHINE_LUCKIER]    = 35,
         [SLOT_MACHINE_LUCKIEST]   = 35
     },
-    { 
-        // Probabilities for BIAS_MIXED_7
+    { // Probabilities for LUCKY_BIAS_MIXED_777
         [SLOT_MACHINE_UNLUCKIEST] = 25,
         [SLOT_MACHINE_UNLUCKIER]  = 25,
         [SLOT_MACHINE_UNLUCKY]    = 30,
@@ -5340,9 +4839,8 @@ static const u8 sBiasProbabilities_Special[][NUM_SLOT_MACHINE_IDS] = {
     }
 };
 
-static const u8 sBiasProbabilities_Regular[][NUM_SLOT_MACHINE_IDS] = {
-    { 
-        // Probabilities for BIAS_POWER
+static const u8 sLuckyFlagProbabilities_NotTop3[][NUM_SLOT_MACHINE_IDS] = {
+    { // Probabilities for LUCKY_BIAS_POWER
         [SLOT_MACHINE_UNLUCKIEST] = 20,
         [SLOT_MACHINE_UNLUCKIER]  = 25,
         [SLOT_MACHINE_UNLUCKY]    = 25,
@@ -5350,8 +4848,7 @@ static const u8 sBiasProbabilities_Regular[][NUM_SLOT_MACHINE_IDS] = {
         [SLOT_MACHINE_LUCKIER]    = 25,
         [SLOT_MACHINE_LUCKIEST]   = 25
     },
-    { 
-        // Probabilities for BIAS_AZURILL
+    { // Probabilities for LUCKY_BIAS_AZURILL
         [SLOT_MACHINE_UNLUCKIEST] = 12,
         [SLOT_MACHINE_UNLUCKIER]  = 15,
         [SLOT_MACHINE_UNLUCKY]    = 15,
@@ -5359,8 +4856,7 @@ static const u8 sBiasProbabilities_Regular[][NUM_SLOT_MACHINE_IDS] = {
         [SLOT_MACHINE_LUCKIER]    = 19,
         [SLOT_MACHINE_LUCKIEST]   = 22
     },
-    { 
-        // Probabilities for BIAS_LOTAD
+    { // Probabilities for LUCKY_BIAS_LOTAD
         [SLOT_MACHINE_UNLUCKIEST] = 25,
         [SLOT_MACHINE_UNLUCKIER]  = 25,
         [SLOT_MACHINE_UNLUCKY]    = 25,
@@ -5368,8 +4864,7 @@ static const u8 sBiasProbabilities_Regular[][NUM_SLOT_MACHINE_IDS] = {
         [SLOT_MACHINE_LUCKIER]    = 30,
         [SLOT_MACHINE_LUCKIEST]   = 40
     },
-    { 
-        // Probabilities for BIAS_CHERRY
+    { // Probabilities for LUCKY_BIAS_CHERRY
         [SLOT_MACHINE_UNLUCKIEST] = 25,
         [SLOT_MACHINE_UNLUCKIER]  = 25,
         [SLOT_MACHINE_UNLUCKY]    = 20,
@@ -5377,8 +4872,7 @@ static const u8 sBiasProbabilities_Regular[][NUM_SLOT_MACHINE_IDS] = {
         [SLOT_MACHINE_LUCKIER]    = 15,
         [SLOT_MACHINE_LUCKIEST]   = 15
     },
-    { 
-        // Probabilities for BIAS_REPLAY
+    { // Probabilities for LUCKY_BIAS_REPLAY
         [SLOT_MACHINE_UNLUCKIEST] = 40,
         [SLOT_MACHINE_UNLUCKIER]  = 40,
         [SLOT_MACHINE_UNLUCKY]    = 35,
@@ -5388,61 +4882,29 @@ static const u8 sBiasProbabilities_Regular[][NUM_SLOT_MACHINE_IDS] = {
     }
 };
 
-// INTENTION:
-//   As you get more Power bolts, the odds of getting higher yields (3+ spins)
-//   increases modestly. There's a high chance of getting at least 1 spin, which
-//   will clear your Power bolts.
-//
-// NOTE: The way these probabilities are drawn significantly skews the odds
-//       toward drawing 0 spins:
-//
-//       | Up to N bolts | Prob intended | Prob actual |
-//       |---------------|---------------|-------------|
-//       |  2            | 94%           | 99%         |
-//       |  6            | 31%           | 57%         |
-//       | 12            | 16%           | 44%         |
-//       | 15            |  2%           | 31%         |
-//       | 16            |  2%           | 31%         |
-static const u8 sReelTimeProbabilities_NormalGame[][17] = {
-    {243, 243, 243,  80,  80,  80,  80,  40,  40,  40,  40,  40,  40,   5,   5,   5,   5},  // 0 spins
-    {  5,   5,   5, 150, 150, 150, 150, 130, 130, 130, 130, 130, 130, 100, 100, 100,   5},  // 1 spin
-    {  4,   4,   4,  20,  20,  20,  20,  80,  80,  80,  80,  80,  80, 100, 100, 100,  40},  // 2 spins
-    {  2,   2,   2,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,  45,  45,  45, 100},  // 3 spins
-    {  1,   1,   1,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   5,   5,   5, 100},  // 4 spins
-    {  1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   6}   // 5 spins
+static const u8 sReeltimeProbabilities_UnluckyGame[][17] = {
+    {243, 243, 243,  80,  80,  80,  80,  40,  40,  40,  40,  40,  40,   5,   5,   5,   5},
+    {  5,   5,   5, 150, 150, 150, 150, 130, 130, 130, 130, 130, 130, 100, 100, 100,   5},
+    {  4,   4,   4,  20,  20,  20,  20,  80,  80,  80,  80,  80,  80, 100, 100, 100,  40},
+    {  2,   2,   2,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,  45,  45,  45, 100},
+    {  1,   1,   1,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   5,   5,   5, 100},
+    {  1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   6}
 };
 
-// INTENTION:
-//   As you get more Power bolts, the odds of getting higher yields (3+ spins)
-//   increases substantially. There is always a high chance of getting no spins,
-//   which lets you keep your Power bolts.
-//
-// NOTE: The way these probabilities are drawn significantly skews the odds
-//       toward drawing 0 spins:
-//
-//       | Up to N bolts | Prob intended | Prob actual |
-//       |---------------|---------------|-------------|
-//       |  2            | 94%           | 99%         |
-//       |  6            | 78%           | 96%         |
-//       | 12            | 63%           | 88%         |
-//       | 15            | 27%           | 58%         |
-//       | 16            |  2%           | 33%         |
 static const u8 sReelTimeProbabilities_LuckyGame[][17] = {
-    { 243, 243, 243, 200, 200, 200, 200, 160, 160, 160, 160, 160, 160,  70,  70,  70,   5},  // 0 spins
-    {   5,   5,   5,  25,  25,  25,  25,   5,   5,   5,   5,   5,   5,   2,   2,   2,   6},  // 1 spin
-    {   4,   4,   4,  25,  25,  25,  25,  30,  30,  30,  30,  30,  30,  40,  40,  40,  35},  // 2 spins
-    {   2,   2,   2,   3,   3,   3,   3,  30,  30,  30,  30,  30,  30, 100, 100, 100,  50},  // 3 spins
-    {   1,   1,   1,   2,   2,   2,   2,  30,  30,  30,  30,  30,  30,  40,  40,  40, 100},  // 4 spins
-    {   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   4,   4,   4,  60}   // 5 spins
+    { 243, 243, 243, 200, 200, 200, 200, 160, 160, 160, 160, 160, 160,  70,  70,  70,   5},
+    {   5,   5,   5,  25,  25,  25,  25,   5,   5,   5,   5,   5,   5,   2,   2,   2,   6},
+    {   4,   4,   4,  25,  25,  25,  25,  30,  30,  30,  30,  30,  30,  40,  40,  40,  35},
+    {   2,   2,   2,   3,   3,   3,   3,  30,  30,  30,  30,  30,  30, 100, 100, 100,  50},
+    {   1,   1,   1,   2,   2,   2,   2,  30,  30,  30,  30,  30,  30,  40,  40,  40, 100},
+    {   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   4,   4,   4,  60}
 };
 
 static const u16 sReelTimeExplodeProbability[] = {
     128, 175, 200, 225, 256
 };
 
-// Column 0: Probability of half-speed
-// Column 1: Base probability of quarter-speed
-static const u16 sReelTimeSpeed_Probabilities[][2] = {
+static const u16 sReelIncrementTable[][2] = {
     {10,  5},
     {10, 10},
     {10, 15},
@@ -5450,62 +4912,55 @@ static const u16 sReelTimeSpeed_Probabilities[][2] = {
     {10, 35}
 };
 
-// Boosted odds of quarter speed during ReelTime
-static const u16 sQuarterSpeed_ProbabilityBoost[] = {
+static const u16 sReelTimeBonusIncrementTable[] = {
     0, 5, 10, 15, 20
 };
 
-static const u8 sBiasSymbols[] = {
-  SYMBOL_REPLAY,  // BIAS_REPLAY
-  SYMBOL_CHERRY,  // BIAS_CHERRY
-  SYMBOL_LOTAD,   // BIAS_LOTAD
-  SYMBOL_AZURILL, // BIAS_AZURILL
-  SYMBOL_POWER,   // BIAS_POWER
-  SYMBOL_7_RED,   // BIAS_REELTIME
-  SYMBOL_7_RED,   // BIAS_MIXED_7
-  SYMBOL_7_RED    // BIAS_STRAIGHT_7
+// tentative name
+static const u8 sBiasTags[] = {
+  GFXTAG_REPLAY, GFXTAG_CHERRY, GFXTAG_LOTAD, GFXTAG_AZURILL, GFXTAG_POWER, GFXTAG_7_RED, GFXTAG_7_RED, GFXTAG_7_RED
 };
 
-static const u16 sBiasesSpecial[] = {
-    BIAS_STRAIGHT_7, BIAS_REELTIME, BIAS_MIXED_7
+static const u16 sLuckyFlagSettings_Top3[] = {
+    LUCKY_BIAS_777, LUCKY_BIAS_REELTIME, LUCKY_BIAS_MIXED_777
 };
 
-static const u16 sBiasesRegular[] = {
-    BIAS_POWER, BIAS_AZURILL, BIAS_LOTAD, BIAS_CHERRY, BIAS_REPLAY
+static const u16 sLuckyFlagSettings_NotTop3[] = {
+    LUCKY_BIAS_POWER, LUCKY_BIAS_AZURILL, LUCKY_BIAS_LOTAD, LUCKY_BIAS_CHERRY, LUCKY_BIAS_REPLAY
 };
 
-static const u8 sSymbolToMatch[] = {
-    [SYMBOL_7_RED]   = MATCH_RED_7,
-    [SYMBOL_7_BLUE]  = MATCH_BLUE_7,
-    [SYMBOL_AZURILL] = MATCH_AZURILL,
-    [SYMBOL_LOTAD]   = MATCH_LOTAD,
-    [SYMBOL_CHERRY]  = MATCH_CHERRY,
-    [SYMBOL_POWER]   = MATCH_POWER,
-    [SYMBOL_REPLAY]  = MATCH_REPLAY
+static const u8 sSymToMatch[] = {
+    [GFXTAG_7_RED]   = MATCHED_777_RED,
+    [GFXTAG_7_BLUE]  = MATCHED_777_BLUE,
+    [GFXTAG_AZURILL] = MATCHED_AZURILL,
+    [GFXTAG_LOTAD]   = MATCHED_LOTAD,
+    [GFXTAG_CHERRY]  = MATCHED_1CHERRY,
+    [GFXTAG_POWER]   = MATCHED_POWER,
+    [GFXTAG_REPLAY]  = MATCHED_REPLAY
 };
 
 static const u16 sSlotMatchFlags[] = {
-    [MATCH_CHERRY]        = 1 << MATCH_CHERRY,
-    [MATCH_TOPBOT_CHERRY] = 1 << MATCH_TOPBOT_CHERRY,
-    [MATCH_REPLAY]        = 1 << MATCH_REPLAY,
-    [MATCH_LOTAD]         = 1 << MATCH_LOTAD,
-    [MATCH_AZURILL]       = 1 << MATCH_AZURILL,
-    [MATCH_POWER]         = 1 << MATCH_POWER,
-    [MATCH_MIXED_7]       = 1 << MATCH_MIXED_7,
-    [MATCH_RED_7]         = 1 << MATCH_RED_7,
-    [MATCH_BLUE_7]        = 1 << MATCH_BLUE_7
+    [MATCHED_1CHERRY]   = 1 << MATCHED_1CHERRY,
+    [MATCHED_2CHERRY]   = 1 << MATCHED_2CHERRY,
+    [MATCHED_REPLAY]    = 1 << MATCHED_REPLAY,
+    [MATCHED_LOTAD]     = 1 << MATCHED_LOTAD,
+    [MATCHED_AZURILL]   = 1 << MATCHED_AZURILL,
+    [MATCHED_POWER]     = 1 << MATCHED_POWER,
+    [MATCHED_777_MIXED] = 1 << MATCHED_777_MIXED,
+    [MATCHED_777_RED]   = 1 << MATCHED_777_RED,
+    [MATCHED_777_BLUE]  = 1 << MATCHED_777_BLUE
 };
 
 static const u16 sSlotPayouts[] = {
-    [MATCH_CHERRY]        = 2,
-    [MATCH_TOPBOT_CHERRY] = 4,
-    [MATCH_REPLAY]        = 0,
-    [MATCH_LOTAD]         = 6,
-    [MATCH_AZURILL]       = 12,
-    [MATCH_POWER]         = 3,
-    [MATCH_MIXED_7]       = 90,
-    [MATCH_RED_7]         = 300,
-    [MATCH_BLUE_7]        = 300
+    [MATCHED_1CHERRY]   = 2,
+    [MATCHED_2CHERRY]   = 4,
+    [MATCHED_REPLAY]    = 0,
+    [MATCHED_LOTAD]     = 6,
+    [MATCHED_AZURILL]   = 12,
+    [MATCHED_POWER]     = 3,
+    [MATCHED_777_MIXED] = 90,
+    [MATCHED_777_RED]   = 300,
+    [MATCHED_777_BLUE]  = 300
 };
 
 static const s16 sDigitalDisplay_SpriteCoords[][2] = {
@@ -7699,18 +7154,18 @@ static const struct SpriteSheet sSlotMachineSpriteSheets[22] =
 
 static const u8 *const sReelBackground_Tilemap = gSlotMachineReelBackground_Tilemap;
 
-static const u16 sUnusedColors[] =
+static const u16 sUnused[] =
 {
-    RGB(27, 27, 27),
-    RGB(8, 11, 26),
-    RGB(11, 21, 13),
-    RGB(31, 31, 31),
-    RGB(16, 26, 21),
-    RGB(0, 22, 31),
-    RGB(26, 21, 0),
-    RGB(26, 21, 0),
-    RGB(29, 15, 0),
-    RGB(29, 15, 0),
+    0x6F7B,
+    0x6968,
+    0x36AB,
+    0x7FFF,
+    0x5750,
+    0x7EC0,
+    0x02BA,
+    0x02BA,
+    0x01FD,
+    0x01FD,
 };
 
 // The Bet 2 and 3 match line palettes are duplicated unnecessarily
@@ -7748,8 +7203,8 @@ static const u8 sMatchLinePalOffsets[NUM_MATCH_LINES] = {
 static const u8 sBetToMatchLineIds[MAX_BET][2] =
 {
     {MATCH_MIDDLE_ROW, MATCH_MIDDLE_ROW}, // Bet 1
-    {MATCH_TOP_ROW,    MATCH_BOTTOM_ROW}, // Bet 2
-    {MATCH_NWSE_DIAG,  MATCH_NESW_DIAG},  // Bet 3
+    {MATCH_TOP_ROW, MATCH_BOTTOM_ROW},    // Bet 2
+    {MATCH_NWSE_DIAG, MATCH_NESW_DIAG},   // Bet 3
 };
 
 static const u8 sMatchLinesPerBet[MAX_BET] = { 1, 2, 2 };
@@ -7779,10 +7234,7 @@ static const u16 *const sPokeballShiningPalTable[] =
 };
 
 static const u16 *const sDigitalDisplay_Pal = gSlotMachineDigitalDisplay_Pal;
-static const u16 sUnkPalette[16] = {
-    [1] = RGB_WHITEALPHA,
-    [3] = RGB(8, 8, 8),
-};
+static const u16 sUnkPalette[] = INCBIN_U16("graphics/slot_machine/85A8524.bin");
 
 static const struct SpritePalette sSlotMachineSpritePalettes[] =
 {
