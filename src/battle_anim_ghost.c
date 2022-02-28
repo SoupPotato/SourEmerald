@@ -898,6 +898,8 @@ void AnimTask_DestinyBondWhiteShadow(u8 taskId)
     {
         if (gAnimMoveIndex == MOVE_DARK_VOID)
             spriteId = CreateSprite(&gDarkVoidBlackHoleTemplate, baseX, baseY, 55);   //dark void
+        if (gAnimMoveIndex == MOVE_SHADOW_SNEAK)
+            spriteId = CreateSprite(&gDarkVoidBlackHoleTemplate, baseX, baseY, 55);   //shadow sneak
         else
             spriteId = CreateSprite(&gDestinyBondWhiteShadowSpriteTemplate, baseX, baseY, 55);   //destiny bond
         
