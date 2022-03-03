@@ -509,6 +509,7 @@ const u8 gInitialMovementTypeFacingDirections[] = {
 #define OBJ_EVENT_PAL_TAG_182                     0x116E  // lansat berry tree
 #define OBJ_EVENT_PAL_TAG_183                     0x116F  // starf berry tree
 #define OBJ_EVENT_PAL_TAG_184                     0x1170  // enigma berry tree
+#define OBJ_EVENT_PAL_TAG_SURF_BLOB               0x1171
 #define OBJ_EVENT_PAL_TAG_NONE                    0x11FF
 
 #include "data/field_effects/field_effect_object_template_pointers.h"
@@ -632,6 +633,7 @@ static const struct SpritePalette sObjectEventSpritePalettes[] = {
 	{gObjectEventPaletteLansatBerryTree,    OBJ_EVENT_PAL_TAG_182},
 	{gObjectEventPaletteStarfBerryTree,     OBJ_EVENT_PAL_TAG_183},
 	{gObjectEventPaletteEnigmaBerryTree,    OBJ_EVENT_PAL_TAG_184},
+	{gObjectEventPaletteSurfBlob,           OBJ_EVENT_PAL_TAG_SURF_BLOB},
     {},
 };
 

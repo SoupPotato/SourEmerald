@@ -450,3 +450,4 @@ const u16 gObjectEventPaletteApicotBerryTree[] = INCBIN_U16("graphics/object_eve
 const u16 gObjectEventPaletteLansatBerryTree[] = INCBIN_U16("graphics/object_events/pics/berry_trees/lansat.gbapal");
 const u16 gObjectEventPaletteStarfBerryTree[] = INCBIN_U16("graphics/object_events/pics/berry_trees/starf.gbapal");
 const u16 gObjectEventPaletteEnigmaBerryTree[] = INCBIN_U16("graphics/object_events/pics/berry_trees/enigma.gbapal");
+const u16 gObjectEventPaletteSurfBlob[] = INCBIN_U16("graphics/field_effects/pics/surf_blob.gbapal");
