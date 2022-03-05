@@ -50,8 +50,8 @@
     },
     {
       "type": "hidden_item",
-      "x": 69,
-      "y": 18,
+      "x": 77,
+      "y": 19,
       "elevation": 3,
       "item": "ITEM_PEARL",
       "flag": "FLAG_HIDDEN_ITEM_UNDERWATER_128_PEARL"
