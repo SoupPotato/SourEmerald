@@ -403,113 +403,105 @@ const u8 gInitialMovementTypeFacingDirections[] = {
 #define OBJ_EVENT_PAL_TAG_NPC_2                   0x1104
 #define OBJ_EVENT_PAL_TAG_NPC_3                   0x1105
 #define OBJ_EVENT_PAL_TAG_NPC_4                   0x1106
-#define OBJ_EVENT_PAL_TAG_NPC_1_REFLECTION        0x1107
-#define OBJ_EVENT_PAL_TAG_NPC_2_REFLECTION        0x1108
-#define OBJ_EVENT_PAL_TAG_NPC_3_REFLECTION        0x1109
-#define OBJ_EVENT_PAL_TAG_NPC_4_REFLECTION        0x110A
-#define OBJ_EVENT_PAL_TAG_QUINTY_PLUMP            0x110B
-#define OBJ_EVENT_PAL_TAG_QUINTY_PLUMP_REFLECTION 0x110C
-#define OBJ_EVENT_PAL_TAG_TRUCK                   0x110D
-#define OBJ_EVENT_PAL_TAG_VIGOROTH                0x110E
-#define OBJ_EVENT_PAL_TAG_ZIGZAGOON               0x110F
-#define OBJ_EVENT_PAL_TAG_MAY                     0x1110
-#define OBJ_EVENT_PAL_TAG_MAY_REFLECTION          0x1111
-#define OBJ_EVENT_PAL_TAG_MOVING_BOX              0x1112
-#define OBJ_EVENT_PAL_TAG_CABLE_CAR               0x1113
-#define OBJ_EVENT_PAL_TAG_SSTIDAL                 0x1114
-#define OBJ_EVENT_PAL_TAG_PLAYER_UNDERWATER       0x1115
-#define OBJ_EVENT_PAL_TAG_KYOGRE                  0x1116
-#define OBJ_EVENT_PAL_TAG_KYOGRE_REFLECTION       0x1117
-#define OBJ_EVENT_PAL_TAG_GROUDON                 0x1118
-#define OBJ_EVENT_PAL_TAG_GROUDON_REFLECTION      0x1119
-#define OBJ_EVENT_PAL_TAG_UNUSED                  0x111A
-#define OBJ_EVENT_PAL_TAG_SUBMARINE_SHADOW        0x111B
-#define OBJ_EVENT_PAL_TAG_POOCHYENA               0x111C
-#define OBJ_EVENT_PAL_TAG_RED_LEAF                0x111D
-#define OBJ_EVENT_PAL_TAG_DEOXYS                  0x111E
-#define OBJ_EVENT_PAL_TAG_BIRTH_ISLAND_STONE      0x111F
-#define OBJ_EVENT_PAL_TAG_HO_OH                   0x1120
-#define OBJ_EVENT_PAL_TAG_LUGIA                   0x1121
-#define OBJ_EVENT_PAL_TAG_RS_BRENDAN              0x1122
-#define OBJ_EVENT_PAL_TAG_RS_MAY                  0x1123
-#define OBJ_EVENT_PAL_TAG_ARCHIE                  0x1124
-#define OBJ_EVENT_PAL_TAG_MAXIE                   0x1125
-#define OBJ_EVENT_PAL_TAG_ANABEL                  0x1126
-#define OBJ_EVENT_PAL_TAG_GRETA                   0x1127
-#define OBJ_EVENT_PAL_TAG_SPENSER                 0x1128
-#define OBJ_EVENT_PAL_TAG_TUCKER                  0x1129
-#define OBJ_EVENT_PAL_TAG_NOLAND                  0x112A
-#define OBJ_EVENT_PAL_TAG_BRAWLY                  0x112B
-#define OBJ_EVENT_PAL_TAG_WATTSON                 0x112C
-#define OBJ_EVENT_PAL_TAG_FLANNERY                0x112D
-#define OBJ_EVENT_PAL_TAG_NORMAN                  0x112E
-#define OBJ_EVENT_PAL_TAG_STEVEN                  0x112F
-#define OBJ_EVENT_PAL_TAG_WALLACE                 0x1130
-#define OBJ_EVENT_PAL_TAG_WALLY                   0x1131
-#define OBJ_EVENT_PAL_TAG_SCOTT                   0x1132
-#define OBJ_EVENT_PAL_TAG_GLACIA                  0x1133
-#define OBJ_EVENT_PAL_TAG_DRAKE                   0x1134
-#define OBJ_EVENT_PAL_TAG_125                     0x1135  // cheri berry tree
-#define OBJ_EVENT_PAL_TAG_126                     0x1136  // chesto berry tree
-#define OBJ_EVENT_PAL_TAG_127                     0x1137  // pecha berry tree
-#define OBJ_EVENT_PAL_TAG_128                     0x1138  // rawst berry tree
-#define OBJ_EVENT_PAL_TAG_129                     0x1139  // aspear berry tree
-#define OBJ_EVENT_PAL_TAG_130                     0x113A  // leppa berry tree
-#define OBJ_EVENT_PAL_TAG_131                     0x113B  // oran berry tree
-#define OBJ_EVENT_PAL_TAG_132                     0x113C  // persim berry tree
-#define OBJ_EVENT_PAL_TAG_133                     0x113D  // lum berry tree
-#define OBJ_EVENT_PAL_TAG_134                     0x113E  // sitrus berry tree
-#define OBJ_EVENT_PAL_TAG_135                     0x113F  // figy berry tree
-#define OBJ_EVENT_PAL_TAG_136                     0x1140  // wiki berry tree
-#define OBJ_EVENT_PAL_TAG_137                     0x1141  // mago berry tree
-#define OBJ_EVENT_PAL_TAG_138                     0x1142  // aguav berry tree
-#define OBJ_EVENT_PAL_TAG_139                     0x1143  // iapapa berry tree
-#define OBJ_EVENT_PAL_TAG_140                     0x1144  // razz berry tree
-#define OBJ_EVENT_PAL_TAG_141                     0x1145  // bluk berry tree
-#define OBJ_EVENT_PAL_TAG_142                     0x1146  // nanab berry tree
-#define OBJ_EVENT_PAL_TAG_143                     0x1147  // wepear berry tree
-#define OBJ_EVENT_PAL_TAG_144                     0x1148  // pinap berry tree
-#define OBJ_EVENT_PAL_TAG_145                     0x1149  // pomeg berry tree
-#define OBJ_EVENT_PAL_TAG_146                     0x114A  // kelpsy berry tree
-#define OBJ_EVENT_PAL_TAG_147                     0x114B  // qualot berry tree
-#define OBJ_EVENT_PAL_TAG_148                     0x114C  // hondew berry tree
-#define OBJ_EVENT_PAL_TAG_149                     0x114D  // grepa berry tree
-#define OBJ_EVENT_PAL_TAG_150                     0x114E  // tamato berry tree
-#define OBJ_EVENT_PAL_TAG_151                     0x114F  // cornn berry tree
-#define OBJ_EVENT_PAL_TAG_152                     0x1150  // magost berry tree
-#define OBJ_EVENT_PAL_TAG_153                     0x1151  // rabuta berry tree
-#define OBJ_EVENT_PAL_TAG_154                     0x1152  // nomel berry tree
-#define OBJ_EVENT_PAL_TAG_155                     0x1153  // spelon berry tree
-#define OBJ_EVENT_PAL_TAG_156                     0x1154  // pamtre berry tree
-#define OBJ_EVENT_PAL_TAG_157                     0x1155  // watmel berry tree
-#define OBJ_EVENT_PAL_TAG_158                     0x1156  // durin berry tree
-#define OBJ_EVENT_PAL_TAG_159                     0x1157  // belue berry tree
-#define OBJ_EVENT_PAL_TAG_160                     0x1158  // occa berry tree
-#define OBJ_EVENT_PAL_TAG_161                     0x1159  // passho berry tree
-#define OBJ_EVENT_PAL_TAG_162                     0x115A  // wacan berry tree
-#define OBJ_EVENT_PAL_TAG_163                     0x115B  // rindo berry tree
-#define OBJ_EVENT_PAL_TAG_164                     0x115C  // yache berry tree
-#define OBJ_EVENT_PAL_TAG_165                     0x115D  // chople berry tree
-#define OBJ_EVENT_PAL_TAG_166                     0x115E  // kebia berry tree
-#define OBJ_EVENT_PAL_TAG_167                     0x115F  // shuca berry tree
-#define OBJ_EVENT_PAL_TAG_168                     0x1160  // coba berry tree
-#define OBJ_EVENT_PAL_TAG_169                     0x1161  // payapa berry tree
-#define OBJ_EVENT_PAL_TAG_170                     0x1162  // tanga berry tree
-#define OBJ_EVENT_PAL_TAG_171                     0x1163  // charti berry tree
-#define OBJ_EVENT_PAL_TAG_172                     0x1164  // kasib berry tree
-#define OBJ_EVENT_PAL_TAG_173                     0x1165  // haban berry tree
-#define OBJ_EVENT_PAL_TAG_174                     0x1166  // colbur berry tree
-#define OBJ_EVENT_PAL_TAG_175                     0x1167  // babiri berry tree
-#define OBJ_EVENT_PAL_TAG_176                     0x1168  // chilan berry tree
-#define OBJ_EVENT_PAL_TAG_177                     0x1169  // liechi berry tree
-#define OBJ_EVENT_PAL_TAG_178                     0x116A  // ganlon berry tree
-#define OBJ_EVENT_PAL_TAG_179                     0x116B  // salac berry tree
-#define OBJ_EVENT_PAL_TAG_180                     0x116C  // petaya berry tree
-#define OBJ_EVENT_PAL_TAG_181                     0x116D  // apicot berry tree
-#define OBJ_EVENT_PAL_TAG_182                     0x116E  // lansat berry tree
-#define OBJ_EVENT_PAL_TAG_183                     0x116F  // starf berry tree
-#define OBJ_EVENT_PAL_TAG_184                     0x1170  // enigma berry tree
-#define OBJ_EVENT_PAL_TAG_SURF_BLOB               0x1171
+#define OBJ_EVENT_PAL_TAG_QUINTY_PLUMP            0x1107
+#define OBJ_EVENT_PAL_TAG_TRUCK                   0x1108
+#define OBJ_EVENT_PAL_TAG_VIGOROTH                0x1109
+#define OBJ_EVENT_PAL_TAG_ZIGZAGOON               0x110A
+#define OBJ_EVENT_PAL_TAG_MAY                     0x110B
+#define OBJ_EVENT_PAL_TAG_MAY_REFLECTION          0x110C
+#define OBJ_EVENT_PAL_TAG_MOVING_BOX              0x110D
+#define OBJ_EVENT_PAL_TAG_CABLE_CAR               0x110E
+#define OBJ_EVENT_PAL_TAG_SSTIDAL                 0x110F
+#define OBJ_EVENT_PAL_TAG_PLAYER_UNDERWATER       0x1110
+#define OBJ_EVENT_PAL_TAG_KYOGRE                  0x1111
+#define OBJ_EVENT_PAL_TAG_GROUDON                 0x1112
+#define OBJ_EVENT_PAL_TAG_SUBMARINE_SHADOW        0x1113
+#define OBJ_EVENT_PAL_TAG_POOCHYENA               0x1114
+#define OBJ_EVENT_PAL_TAG_RED_LEAF                0x1115
+#define OBJ_EVENT_PAL_TAG_DEOXYS                  0x1116
+#define OBJ_EVENT_PAL_TAG_BIRTH_ISLAND_STONE      0x1117
+#define OBJ_EVENT_PAL_TAG_HO_OH                   0x1118
+#define OBJ_EVENT_PAL_TAG_LUGIA                   0x1119
+#define OBJ_EVENT_PAL_TAG_RS_BRENDAN              0x111A
+#define OBJ_EVENT_PAL_TAG_RS_MAY                  0x111B
+#define OBJ_EVENT_PAL_TAG_ARCHIE                  0x111C
+#define OBJ_EVENT_PAL_TAG_MAXIE                   0x111D
+#define OBJ_EVENT_PAL_TAG_ANABEL                  0x111E
+#define OBJ_EVENT_PAL_TAG_GRETA                   0x111F
+#define OBJ_EVENT_PAL_TAG_SPENSER                 0x1120
+#define OBJ_EVENT_PAL_TAG_TUCKER                  0x1121
+#define OBJ_EVENT_PAL_TAG_NOLAND                  0x1122
+#define OBJ_EVENT_PAL_TAG_BRAWLY                  0x1123
+#define OBJ_EVENT_PAL_TAG_WATTSON                 0x1124
+#define OBJ_EVENT_PAL_TAG_FLANNERY                0x1125
+#define OBJ_EVENT_PAL_TAG_NORMAN                  0x1126
+#define OBJ_EVENT_PAL_TAG_STEVEN                  0x1127
+#define OBJ_EVENT_PAL_TAG_WALLACE                 0x1128
+#define OBJ_EVENT_PAL_TAG_WALLY                   0x1129
+#define OBJ_EVENT_PAL_TAG_SCOTT                   0x112A
+#define OBJ_EVENT_PAL_TAG_GLACIA                  0x112B
+#define OBJ_EVENT_PAL_TAG_DRAKE                   0x112C
+#define OBJ_EVENT_PAL_TAG_125                     0x112D  // cheri berry tree
+#define OBJ_EVENT_PAL_TAG_126                     0x112E  // chesto berry tree
+#define OBJ_EVENT_PAL_TAG_127                     0x112F  // pecha berry tree
+#define OBJ_EVENT_PAL_TAG_128                     0x1130  // rawst berry tree
+#define OBJ_EVENT_PAL_TAG_129                     0x1131  // aspear berry tree
+#define OBJ_EVENT_PAL_TAG_130                     0x1132  // leppa berry tree
+#define OBJ_EVENT_PAL_TAG_131                     0x1133  // oran berry tree
+#define OBJ_EVENT_PAL_TAG_132                     0x1134  // persim berry tree
+#define OBJ_EVENT_PAL_TAG_133                     0x1135  // lum berry tree
+#define OBJ_EVENT_PAL_TAG_134                     0x1136  // sitrus berry tree
+#define OBJ_EVENT_PAL_TAG_135                     0x1137  // figy berry tree
+#define OBJ_EVENT_PAL_TAG_136                     0x1138  // wiki berry tree
+#define OBJ_EVENT_PAL_TAG_137                     0x1139  // mago berry tree
+#define OBJ_EVENT_PAL_TAG_138                     0x113A  // aguav berry tree
+#define OBJ_EVENT_PAL_TAG_139                     0x113B  // iapapa berry tree
+#define OBJ_EVENT_PAL_TAG_140                     0x113C  // razz berry tree
+#define OBJ_EVENT_PAL_TAG_141                     0x113D  // bluk berry tree
+#define OBJ_EVENT_PAL_TAG_142                     0x113E  // nanab berry tree
+#define OBJ_EVENT_PAL_TAG_143                     0x113F  // wepear berry tree
+#define OBJ_EVENT_PAL_TAG_144                     0x1140  // pinap berry tree
+#define OBJ_EVENT_PAL_TAG_145                     0x1141  // pomeg berry tree
+#define OBJ_EVENT_PAL_TAG_146                     0x1142  // kelpsy berry tree
+#define OBJ_EVENT_PAL_TAG_147                     0x1143  // qualot berry tree
+#define OBJ_EVENT_PAL_TAG_148                     0x1144  // hondew berry tree
+#define OBJ_EVENT_PAL_TAG_149                     0x1145  // grepa berry tree
+#define OBJ_EVENT_PAL_TAG_150                     0x1146  // tamato berry tree
+#define OBJ_EVENT_PAL_TAG_151                     0x1147  // cornn berry tree
+#define OBJ_EVENT_PAL_TAG_152                     0x1148  // magost berry tree
+#define OBJ_EVENT_PAL_TAG_153                     0x1149  // rabuta berry tree
+#define OBJ_EVENT_PAL_TAG_154                     0x114A  // nomel berry tree
+#define OBJ_EVENT_PAL_TAG_155                     0x114B  // spelon berry tree
+#define OBJ_EVENT_PAL_TAG_156                     0x114C  // pamtre berry tree
+#define OBJ_EVENT_PAL_TAG_157                     0x114D  // watmel berry tree
+#define OBJ_EVENT_PAL_TAG_158                     0x114E  // durin berry tree
+#define OBJ_EVENT_PAL_TAG_159                     0x114F  // belue berry tree
+#define OBJ_EVENT_PAL_TAG_160                     0x1150  // occa berry tree
+#define OBJ_EVENT_PAL_TAG_161                     0x1151  // passho berry tree
+#define OBJ_EVENT_PAL_TAG_162                     0x1152  // wacan berry tree
+#define OBJ_EVENT_PAL_TAG_163                     0x1153  // rindo berry tree
+#define OBJ_EVENT_PAL_TAG_164                     0x1154  // yache berry tree
+#define OBJ_EVENT_PAL_TAG_165                     0x1155  // chople berry tree
+#define OBJ_EVENT_PAL_TAG_166                     0x1156  // kebia berry tree
+#define OBJ_EVENT_PAL_TAG_167                     0x1157  // shuca berry tree
+#define OBJ_EVENT_PAL_TAG_168                     0x1158  // coba berry tree
+#define OBJ_EVENT_PAL_TAG_169                     0x1159  // payapa berry tree
+#define OBJ_EVENT_PAL_TAG_170                     0x115A  // tanga berry tree
+#define OBJ_EVENT_PAL_TAG_171                     0x115B  // charti berry tree
+#define OBJ_EVENT_PAL_TAG_172                     0x115C  // kasib berry tree
+#define OBJ_EVENT_PAL_TAG_173                     0x115D  // haban berry tree
+#define OBJ_EVENT_PAL_TAG_174                     0x115E  // colbur berry tree
+#define OBJ_EVENT_PAL_TAG_175                     0x115F  // babiri berry tree
+#define OBJ_EVENT_PAL_TAG_176                     0x1160  // chilan berry tree
+#define OBJ_EVENT_PAL_TAG_177                     0x1161  // liechi berry tree
+#define OBJ_EVENT_PAL_TAG_178                     0x1162  // ganlon berry tree
+#define OBJ_EVENT_PAL_TAG_179                     0x1163  // salac berry tree
+#define OBJ_EVENT_PAL_TAG_180                     0x1164  // petaya berry tree
+#define OBJ_EVENT_PAL_TAG_181                     0x1165  // apicot berry tree
+#define OBJ_EVENT_PAL_TAG_182                     0x1166  // lansat berry tree
+#define OBJ_EVENT_PAL_TAG_183                     0x1167  // starf berry tree
+#define OBJ_EVENT_PAL_TAG_184                     0x1168  // enigma berry tree
+#define OBJ_EVENT_PAL_TAG_SURF_BLOB               0x1169
 #define OBJ_EVENT_PAL_TAG_NONE                    0x11FF
 
 #include "data/field_effects/field_effect_object_template_pointers.h"
@@ -525,28 +517,20 @@ static const struct SpritePalette sObjectEventSpritePalettes[] = {
     {gObjectEventPal_Npc2,                  OBJ_EVENT_PAL_TAG_NPC_2},
     {gObjectEventPal_Npc3,                  OBJ_EVENT_PAL_TAG_NPC_3},
     {gObjectEventPal_Npc4,                  OBJ_EVENT_PAL_TAG_NPC_4},
-    {gObjectEventPal_Npc1Reflection,        OBJ_EVENT_PAL_TAG_NPC_1_REFLECTION},
-    {gObjectEventPal_Npc2Reflection,        OBJ_EVENT_PAL_TAG_NPC_2_REFLECTION},
-    {gObjectEventPal_Npc3Reflection,        OBJ_EVENT_PAL_TAG_NPC_3_REFLECTION},
-    {gObjectEventPal_Npc4Reflection,        OBJ_EVENT_PAL_TAG_NPC_4_REFLECTION},
     {gObjectEventPal_Brendan,               OBJ_EVENT_PAL_TAG_BRENDAN},
     {gObjectEventPal_BrendanReflection,     OBJ_EVENT_PAL_TAG_BRENDAN_REFLECTION},
     {gObjectEventPal_BridgeReflection,      OBJ_EVENT_PAL_TAG_BRIDGE_REFLECTION},
     {gObjectEventPal_PlayerUnderwater,      OBJ_EVENT_PAL_TAG_PLAYER_UNDERWATER},
     {gObjectEventPal_QuintyPlump,           OBJ_EVENT_PAL_TAG_QUINTY_PLUMP},
-    {gObjectEventPal_QuintyPlumpReflection, OBJ_EVENT_PAL_TAG_QUINTY_PLUMP_REFLECTION},
     {gObjectEventPal_Truck,                 OBJ_EVENT_PAL_TAG_TRUCK},
     {gObjectEventPal_Vigoroth,              OBJ_EVENT_PAL_TAG_VIGOROTH},
     {gObjectEventPal_EnemyZigzagoon,        OBJ_EVENT_PAL_TAG_ZIGZAGOON},
     {gObjectEventPal_May,                   OBJ_EVENT_PAL_TAG_MAY},
-    {gObjectEventPal_MayReflection,         OBJ_EVENT_PAL_TAG_MAY_REFLECTION},
     {gObjectEventPal_MovingBox,             OBJ_EVENT_PAL_TAG_MOVING_BOX},
     {gObjectEventPal_CableCar,              OBJ_EVENT_PAL_TAG_CABLE_CAR},
     {gObjectEventPal_SSTidal,               OBJ_EVENT_PAL_TAG_SSTIDAL},
     {gObjectEventPal_Kyogre,                OBJ_EVENT_PAL_TAG_KYOGRE},
-    {gObjectEventPal_KyogreReflection,      OBJ_EVENT_PAL_TAG_KYOGRE_REFLECTION},
     {gObjectEventPal_Groudon,               OBJ_EVENT_PAL_TAG_GROUDON},
-    {gObjectEventPal_GroudonReflection,     OBJ_EVENT_PAL_TAG_GROUDON_REFLECTION},
     {gObjectEventPal_SubmarineShadow,       OBJ_EVENT_PAL_TAG_SUBMARINE_SHADOW},
     {gObjectEventPal_Poochyena,             OBJ_EVENT_PAL_TAG_POOCHYENA},
     {gObjectEventPal_RedLeaf,               OBJ_EVENT_PAL_TAG_RED_LEAF},
@@ -634,7 +618,7 @@ static const struct SpritePalette sObjectEventSpritePalettes[] = {
 	{gObjectEventPaletteStarfBerryTree,     OBJ_EVENT_PAL_TAG_183},
 	{gObjectEventPaletteEnigmaBerryTree,    OBJ_EVENT_PAL_TAG_184},
 	{gObjectEventPaletteSurfBlob,           OBJ_EVENT_PAL_TAG_SURF_BLOB},
-    {},
+    {NULL,                                  OBJ_EVENT_PAL_TAG_NONE},
 };
 
 #include "data/object_events/berry_tree_graphics_tables.h"
@@ -1938,14 +1922,14 @@ static u8 LoadSpritePaletteIfTagExists(const struct SpritePalette *spritePalette
     if (IndexOfSpritePaletteTag(spritePalette->tag) != 0xFF)
         return 0xFF;
 
-    return LoadSpritePalette(spritePalette);
+    return LoadSpritePaletteDayNight(spritePalette);
 }
 
 void PatchObjectPalette(u16 paletteTag, u8 paletteSlot)
 {
     u8 paletteIndex = FindObjectEventPaletteIndexByTag(paletteTag);
 
-    LoadPalette(sObjectEventSpritePalettes[paletteIndex].data, 16 * paletteSlot + 0x100, 0x20);
+    LoadPaletteDayNight(sObjectEventSpritePalettes[paletteIndex].data, 16 * paletteSlot + 0x100, 0x20);
 }
 
 void PatchObjectPaletteRange(const u16 *paletteTags, u8 minSlot, u8 maxSlot)

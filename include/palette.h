@@ -52,8 +52,11 @@ extern u8 gPaletteDecompressionBuffer[];
 extern u16 gPlttBufferUnfaded[PLTT_BUFFER_SIZE];
 extern u16 gPlttBufferFaded[PLTT_BUFFER_SIZE];
 
-void LoadCompressedPalette(const u32 *, u16, u16);
-void LoadPalette(const void *, u16, u16);
+void LoadCompressedPalette(const u32 *src, u16 offset, u16 size);
+void LoadCompressedPaletteDayNight(const void *src, u16 offset, u16 size);
+void LoadPaletteInternal(const void *src, u16 offset, u16 size, bool32 isDayNight);
+void LoadPalette(const void *src, u16 offset, u16 size);
+void LoadPaletteDayNight(const void *src, u16 offset, u16 size);
 void FillPalette(u16, u16, u16);
 void TransferPlttBuffer(void);
 u8 UpdatePaletteFade(void);
@@ -69,9 +72,11 @@ void BeginHardwarePaletteFade(u8, u8, u8, u8, u8);
 void BlendPalettes(u32 selectedPalettes, u8 coeff, u16 color);
 void BlendPalettesUnfaded(u32, u8, u16);
 void BlendPalettesGradually(u32 selectedPalettes, s8 delay, u8 coeff, u8 coeffTarget, u16 color, u8 priority, u8 id);
+bool32 LerpColors(u16 *rgbDest, const u16 *rgb1, const u16 *rgb2, u8 coeff);
 void TintPalette_GrayScale(u16 *palette, u16 count);
 void TintPalette_GrayScale2(u16 *palette, u16 count);
 void TintPalette_SepiaTone(u16 *palette, u16 count);
 void TintPalette_CustomTone(u16 *palette, u16 count, u16 rTone, u16 gTone, u16 bTone);
+void TintPalette_CustomToneWithCopy(const u16 *src, u16 *dest, u16 count, u16 rTone, u16 gTone, u16 bTone, bool32 excludeZeroes);
 
 #endif // GUARD_PALETTE_H

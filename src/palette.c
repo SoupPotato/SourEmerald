@@ -1,9 +1,11 @@
 #include "global.h"
+#include "day_night.h"
 #include "palette.h"
 #include "util.h"
 #include "decompress.h"
 #include "gpu_regs.h"
 #include "task.h"
+#include "constants/day_night.h"
 #include "constants/rgb.h"
 
 enum
@@ -81,17 +83,57 @@ static const u8 sRoundedDownGrayscaleMap[] = {
     31, 31
 };
 
-void LoadCompressedPalette(const u32 *src, u16 offset, u16 size)
+static void LoadCompressedPaletteInternal(const void *src, u16 offset, u16 size, bool32 isDayNight)
 {
     LZDecompressWram(src, gPaletteDecompressionBuffer);
-    CpuCopy16(gPaletteDecompressionBuffer, &gPlttBufferUnfaded[offset], size);
-    CpuCopy16(gPaletteDecompressionBuffer, &gPlttBufferFaded[offset], size);
+    if (isDayNight)
+    {
+        CpuCopy16(gPaletteDecompressionBuffer, &gPlttBufferPreDN[offset], size);
+        TintPaletteForDayNight(offset, size);
+        CpuCopy16(&gPlttBufferUnfaded[offset], &gPlttBufferFaded[offset], size);
+    }
+    else
+    {
+        CpuFill16(RGB_BLACK, &gPlttBufferPreDN[offset], size);
+        CpuCopy16(gPaletteDecompressionBuffer, &gPlttBufferUnfaded[offset], size);
+        CpuCopy16(gPaletteDecompressionBuffer, &gPlttBufferFaded[offset], size);
+    }
+}
+
+void LoadCompressedPalette(const u32 *src, u16 offset, u16 size)
+{
+    LoadCompressedPaletteInternal(src, offset, size, FALSE);
+}
+
+void LoadCompressedPaletteDayNight(const void *src, u16 offset, u16 size)
+{
+    LoadCompressedPaletteInternal(src, offset, size, TRUE);
+}
+
+void LoadPaletteInternal(const void *src, u16 offset, u16 size, bool32 isDayNight)
+{
+    if (isDayNight)
+    {
+        CpuCopy16(src, &gPlttBufferPreDN[offset], size);
+        TintPaletteForDayNight(offset, size);
+        CpuCopy16(&gPlttBufferUnfaded[offset], &gPlttBufferFaded[offset], size);
+    }
+    else
+    {
+        CpuFill16(RGB_BLACK, &gPlttBufferPreDN[offset], size);
+        CpuCopy16(src, &gPlttBufferUnfaded[offset], size);
+        CpuCopy16(src, &gPlttBufferFaded[offset], size);
+    }
 }
 
 void LoadPalette(const void *src, u16 offset, u16 size)
 {
-    CpuCopy16(src, &gPlttBufferUnfaded[offset], size);
-    CpuCopy16(src, &gPlttBufferFaded[offset], size);
+    LoadPaletteInternal(src, offset, size, FALSE);
+}
+
+void LoadPaletteDayNight(const void *src, u16 offset, u16 size)
+{
+    LoadPaletteInternal(src, offset, size, TRUE);
 }
 
 void FillPalette(u16 value, u16 offset, u16 size)
@@ -851,6 +893,33 @@ void BlendPalettesUnfaded(u32 selectedPalettes, u8 coeff, u16 color)
     BlendPalettes(selectedPalettes, coeff, color);
 }
 
+bool32 LerpColors(u16 *rgbDest, const u16 *rgb1, const u16 *rgb2, u8 coeff)
+{
+    bool32 ret = FALSE;
+    u16 rgbTemp[3];
+
+    memcpy(rgbTemp, rgb1, sizeof(rgbTemp));
+
+    if (rgb1[0] != rgb2[0] ||
+        rgb1[1] != rgb2[1] ||
+        rgb1[2] != rgb2[2])
+    {
+        rgbTemp[0] = (((rgb2[0] - rgb1[0]) * coeff) / TINT_PERIODS_PER_HOUR) + rgb1[0];
+        rgbTemp[1] = (((rgb2[1] - rgb1[1]) * coeff) / TINT_PERIODS_PER_HOUR) + rgb1[1];
+        rgbTemp[2] = (((rgb2[2] - rgb1[2]) * coeff) / TINT_PERIODS_PER_HOUR) + rgb1[2];
+    }
+
+    if (rgbTemp[0] != rgbDest[0] ||
+        rgbTemp[1] != rgbDest[1] ||
+        rgbTemp[2] != rgbDest[2])
+    {
+        ret = TRUE;
+        memcpy(rgbDest, rgbTemp, sizeof(rgbTemp));
+    }
+
+    return ret;
+}
+
 void TintPalette_GrayScale(u16 *palette, u16 count)
 {
     s32 r, g, b, i;
@@ -939,6 +1008,35 @@ void TintPalette_CustomTone(u16 *palette, u16 count, u16 rTone, u16 gTone, u16 b
             b = 31;
 
         *palette++ = RGB2(r, g, b);
+    }
+}
+
+void TintPalette_CustomToneWithCopy(const u16 *src, u16 *dest, u16 count, u16 rTone, u16 gTone, u16 bTone, bool32 excludeZeroes)
+{
+    s32 r, g, b, i;
+    u32 gray;
+
+    for (i = 0; i < count; i++, src++, dest++)
+    {
+        if (excludeZeroes && *src == RGB_BLACK)
+            continue;
+
+        r = (*src >>  0) & 0x1F;
+        g = (*src >>  5) & 0x1F;
+        b = (*src >> 10) & 0x1F;
+
+        r = (u16)((rTone * r)) >> 8;
+        g = (u16)((gTone * g)) >> 8;
+        b = (u16)((bTone * b)) >> 8;
+
+        if (r > 31)
+            r = 31;
+        if (g > 31)
+            g = 31;
+        if (b > 31)
+            b = 31;
+
+        *dest = (b << 10) | (g << 5) | (r << 0);
     }
 }
 

@@ -33,8 +33,6 @@ static void SpriteCB_UnderwaterSurfBlob(struct Sprite *);
 static u32 ShowDisguiseFieldEffect(u8, u8);
 static void LoadFieldEffectPalette_(u8 fieldEffect, bool8 updateGammaType);
 
-void LoadSpecialReflectionPalette(struct Sprite *sprite);
-
 extern u16 gReflectionPaletteBuffer[];
 
 // Used by several field effects to determine which of a group it is
@@ -97,36 +95,34 @@ static void LoadObjectReflectionPalette(struct ObjectEvent *objectEvent, struct 
     }
     else
     {
-        LoadSpecialReflectionPalette(reflectionSprite);
-    }
-}
+        u32 i;
+        u16* pal;
+        struct SpritePalette reflectionPalette;
 
-void LoadSpecialReflectionPalette(struct Sprite *sprite)
-{
-    u32 R, G, B, i;
-    u16 color;
-    u16* pal;
-    struct SpritePalette reflectionPalette;
+        CpuCopy16(&gPlttBufferUnfaded[0x100 + reflectionSprite->oam.paletteNum * 16], gReflectionPaletteBuffer, 32);
+        pal = gReflectionPaletteBuffer;
+        for (i = 0; i < 16; ++i)
+        {
+            u16 color = pal[i];
+            u32 R = GET_R(color) + 8;
+            u32 G = GET_G(color) + 8;
+            u32 B = GET_B(color) + 16;
 
-    CpuCopy16(&gPlttBufferUnfaded[0x100 + sprite->oam.paletteNum * 16], gReflectionPaletteBuffer, 32);
-    pal = gReflectionPaletteBuffer;
-    for (i = 0; i < 16; ++i)
-    {
-        color = pal[i];
-        R = GET_R(color) + 8;
-        G = GET_G(color) + 8;
-        B = GET_B(color) + 16;
-        if (R > 31) R = 31;
-        if (G > 31) G = 31;
-        if (B > 31) B = 31;
-        pal[i] = RGB(R, G, B);
+            if (R > 31)
+                R = 31;
+            if (G > 31)
+                G = 31;
+            if (B > 31)
+                B = 31;
+            pal[i] = RGB(R, G, B);
+	    }
+        reflectionPalette.data = gReflectionPaletteBuffer;
+        reflectionPalette.tag = GetSpritePaletteTagByPaletteNum(reflectionSprite->oam.paletteNum) + 0x1000;
+        LoadSpritePaletteDayNight(&reflectionPalette);
+        reflectionSprite->oam.paletteNum = IndexOfSpritePaletteTag(reflectionPalette.tag);
+        UpdatePaletteGammaType(reflectionSprite->oam.paletteNum, GAMMA_ALT);
+        UpdateSpritePaletteWithWeather(reflectionSprite->oam.paletteNum);
     }
-    reflectionPalette.data = gReflectionPaletteBuffer;
-    reflectionPalette.tag = GetSpritePaletteTagByPaletteNum(sprite->oam.paletteNum) + 0x1000;
-    LoadSpritePalette(&reflectionPalette);
-    sprite->oam.paletteNum = IndexOfSpritePaletteTag(reflectionPalette.tag);
-    UpdatePaletteGammaType(sprite->oam.paletteNum, GAMMA_ALT);
-    UpdateSpritePaletteWithWeather(sprite->oam.paletteNum);
 }
 
 static void UpdateObjectReflectionSprite(struct Sprite *reflectionSprite)
@@ -178,6 +174,7 @@ static void UpdateObjectReflectionSprite(struct Sprite *reflectionSprite)
 #undef sIsStillReflection
 
 extern const struct SpriteTemplate *const gFieldEffectObjectTemplatePointers[];
+extern const struct SpritePalette gSpritePalette_ArrowEmotionsFieldEffect;
 
 u8 CreateWarpArrowSprite(void)
 {
@@ -196,8 +193,14 @@ u8 CreateWarpArrowSprite(void)
     return spriteId;
 }
 
+// this function is only used for the warp arrow sprite
 void SetSpriteInvisible(u8 spriteId)
 {
+    // needed in order to trick the palette system into thinking that no sprite is using that palette
+    u8 paletteNum = gSprites[spriteId].oam.paletteNum;
+
+    gSprites[spriteId].oam.paletteNum = 0;
+    FieldEffectFreePaletteIfUnused(paletteNum);
     gSprites[spriteId].invisible = TRUE;
 }
 
@@ -217,6 +220,7 @@ void ShowWarpArrowSprite(u8 spriteId, u8 direction, s16 x, s16 y)
         sprite->invisible = FALSE;
         sprite->data[0] = x;
         sprite->data[1] = y;
+        sprite->oam.paletteNum = LoadSpritePalette(&gSpritePalette_ArrowEmotionsFieldEffect);
         StartSpriteAnim(sprite, direction - 1);
     }
 }
