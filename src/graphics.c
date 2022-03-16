@@ -1944,6 +1944,9 @@ const u16 gTilesetPalettes_General[][16] =
     INCBIN_U16("data/tilesets/primary/general/palettes/15.gbapal"),
 };
 
+const u16 gTilesetPalOverride_General01[] = INCBIN_U16("data/tilesets/primary/general/palettes/01_over.gbapal");
+const u16 gTilesetPalOverride_General05[] = INCBIN_U16("data/tilesets/primary/general/palettes/05_over.gbapal");
+
 const u32 gTilesetTiles_General[] = INCBIN_U32("data/tilesets/primary/general/tiles.4bpp.lz");
 
 // trade/egg hatch

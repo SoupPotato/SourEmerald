@@ -1,14 +1,14 @@
-	.align 2
+    .align 2
 gTileset_General::
-	.byte TRUE @ is compressed
-	.byte FALSE @ is secondary tileset
-	.2byte 0 @ padding
-	.4byte gTilesetTiles_General
-	.4byte gTilesetPalettes_General
-	.4byte gMetatiles_General
-	.4byte gMetatileAttributes_General
-	.4byte InitTilesetAnim_General
-	.4byte NULL @ palette overrides
+    .byte TRUE @ is compressed
+    .byte FALSE @ is secondary tileset
+    .2byte 0 @ padding
+    .4byte gTilesetTiles_General
+    .4byte gTilesetPalettes_General
+    .4byte gMetatiles_General
+    .4byte InitTilesetAnim_General
+    .4byte gMetatileAttributes_General
+    .4byte gTilesetPalOverrides_General
 
 
 	.align 2
@@ -21,7 +21,7 @@ gTileset_Petalburg::
 	.4byte gMetatiles_Petalburg
 	.4byte gMetatileAttributes_Petalburg
 	.4byte InitTilesetAnim_Petalburg
-	.4byte NULL @ palette overrides
+	.4byte gTilesetPalOverrides_Petalburg
 
 	.align 2
 gTileset_Rustboro::
