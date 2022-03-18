@@ -22,10 +22,6 @@ gTilesetPalettes_Petalburg::
 	.incbin "data/tilesets/secondary/petalburg/palettes/15.gbapal"
 
 	.align 2
-gTilesetPalOverride_Windows_Petalburg::
-	.incbin "data/tilesets/override_palettes/06_over.gbapal"
-
-	.align 2
 gTilesetTiles_Rustboro::
 	.incbin "data/tilesets/secondary/rustboro/tiles.4bpp.lz"
 
@@ -93,10 +89,6 @@ gTilesetPalettes_Slateport::
 	.incbin "data/tilesets/secondary/slateport/palettes/13.gbapal"
 	.incbin "data/tilesets/secondary/slateport/palettes/14.gbapal"
 	.incbin "data/tilesets/secondary/slateport/palettes/15.gbapal"
-
-	.align 2
-gTilesetPalOverride_Windows_Slateport::
-	.incbin "data/tilesets/override_palettes/10_over.gbapal"
 
 	.align 2
 gTilesetTiles_Mauville::

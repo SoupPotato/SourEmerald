@@ -7,4 +7,3 @@
 	.include "data/tilesets/graphics.inc"
 	.include "data/tilesets/metatiles.inc"
 	.include "data/tilesets/headers.inc"
-	.include "data/tilesets/overrides.inc"
