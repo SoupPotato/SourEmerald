@@ -412,3 +412,6 @@ const u16 gObjectEventPaletteLansatBerryTree[] = INCBIN_U16("graphics/object_eve
 const u16 gObjectEventPaletteStarfBerryTree[] = INCBIN_U16("graphics/object_events/pics/berry_trees/starf.gbapal");
 const u16 gObjectEventPaletteEnigmaBerryTree[] = INCBIN_U16("graphics/object_events/pics/berry_trees/enigma.gbapal");
 const u16 gObjectEventPaletteSurfBlob[] = INCBIN_U16("graphics/field_effects/pics/surf_blob.gbapal");
+
+const u32 gFieldEffectObjectPic_CaveDust[] = INCBIN_U32("graphics/field_effects/pics/cave_dust.4bpp");
+const u16 gFieldEffectObjectPalette_CaveDust[] = INCBIN_U16("graphics/field_effects/palettes/cave_dust.gbapal");
