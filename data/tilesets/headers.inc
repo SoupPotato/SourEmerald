@@ -45,6 +45,7 @@ gTileset_Dewford::
 	.4byte gMetatiles_Dewford
 	.4byte gMetatileAttributes_Dewford
 	.4byte InitTilesetAnim_Dewford
+	.4byte NULL @ palette overrides
 
 	.align 2
 gTileset_Slateport::
