@@ -362,6 +362,14 @@ bool8 MEScrCmd_addtrainer(struct ScriptContext *ctx)
     return FALSE;
 }
 
+bool8 MEScrCmd_enableresetrtc(struct ScriptContext *ctx)
+{
+    EnableResetRTC();
+    StringExpandPlaceholders(gStringVar4, gText_InGameClockUsable);
+    ctx->mStatus = MEVENT_STATUS_SUCCESS;
+    return FALSE;
+}
+
 bool8 MEScrCmd_checksum(struct ScriptContext *ctx)
 {
     int checksum = ScriptReadWord(ctx);

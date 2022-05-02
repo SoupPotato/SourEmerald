@@ -694,6 +694,7 @@ static void Task_ResetRtcScreen(u8 taskId)
                     gLocalTime.seconds);
                 gSaveBlock2Ptr->lastBerryTreeUpdate = gLocalTime;
                 VarSet(VAR_DAYS, gLocalTime.days);
+                DisableResetRTC();
                 ShowMessage(gText_ClockHasBeenReset);
                 tState = MAINSTATE_SAVE;
             }

@@ -8,51 +8,35 @@
 	.4byte \address
 	.endm
 
-	.macro field_eff_loadfadedpalnotint address
+	.macro field_eff_loadpal address
 	.byte 2
 	.4byte \address
 	.endm
 
-	.macro field_eff_loadpal address
+	.macro field_eff_callnative address
 	.byte 3
 	.4byte \address
 	.endm
 
-	.macro field_eff_loadpalnotint address
-	.byte 4
-	.4byte \address
-	.endm
-
-	.macro field_eff_callnative address
-	.byte 5
-	.4byte \address
-	.endm
-
 	.macro field_eff_end
-	.byte 6
+	.byte 4
 	.endm
 
 	.macro field_eff_loadgfx_callnative tiles_address, palette_address, function_address
-	.byte 7
+	.byte 5
 	.4byte \tiles_address
 	.4byte \palette_address
 	.4byte \function_address
 	.endm
 
 	.macro field_eff_loadtiles_callnative tiles_address, function_address
-	.byte 8
+	.byte 6
 	.4byte \tiles_address
 	.4byte \function_address
 	.endm
 
 	.macro field_eff_loadfadedpal_callnative palette_address, function_address
-	.byte 9
-	.4byte \palette_address
-	.4byte \function_address
-	.endm
-
-	.macro field_eff_loadfadedpalnotint_callnative palette_address, function_address
-	.byte 10
+	.byte 7
 	.4byte \palette_address
 	.4byte \function_address
 	.endm

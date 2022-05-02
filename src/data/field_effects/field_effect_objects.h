@@ -1,6 +1,5 @@
 const struct SpritePalette gSpritePalette_GeneralFieldEffect0 = {gFieldEffectObjectPalette0, FLDEFF_PAL_TAG_GENERAL_0};
 const struct SpritePalette gSpritePalette_GeneralFieldEffect1 = {gFieldEffectObjectPalette1, FLDEFF_PAL_TAG_GENERAL_1};
-const struct SpritePalette gSpritePalette_ArrowEmotionsFieldEffect = {gObjectEventPal_Brendan, FLDEFF_PAL_TAG_ARROW};
 
 static const union AnimCmd sAnim_Shadow[] =
 {
@@ -269,7 +268,7 @@ static const union AnimCmd *const sAnimTable_Arrow[] =
 
 const struct SpriteTemplate gFieldEffectObjectTemplate_Arrow = {
     .tileTag = TAG_NONE,
-    .paletteTag = FLDEFF_PAL_TAG_ARROW,
+    .paletteTag = OBJ_EVENT_PAL_TAG_BRENDAN,
     .oam = &gObjectEventBaseOam_16x16,
     .anims = sAnimTable_Arrow,
     .images = sPicTable_Arrow,
