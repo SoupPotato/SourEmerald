@@ -1512,7 +1512,7 @@ const struct MonCoords gMonFrontPicCoords[] =
     [SPECIES_NINCADA] =
     {
         .size = MON_COORDS_SIZE(56, 32),
-        .y_offset = 18,
+        .y_offset = 15,
     },
     [SPECIES_NINJASK] =
     {

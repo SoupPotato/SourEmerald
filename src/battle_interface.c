@@ -1037,7 +1037,7 @@ void GetBattlerHealthboxCoords(u8 battler, s16 *x, s16 *y)
     if (!IsDoubleBattle())
     {
         if (GetBattlerSide(battler) != B_SIDE_PLAYER)
-            *x = 44, *y = 30;
+            *x = 44, *y = 25;
         else
             *x = 158, *y = 88;
     }
