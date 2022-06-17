@@ -1115,7 +1115,7 @@ void LoadAndCreateEnemyShadowSprites(void)
     battlerId = GetBattlerAtPosition(B_POSITION_OPPONENT_LEFT);
     gBattleSpritesDataPtr->healthBoxesData[battlerId].shadowSpriteId = CreateSprite(&gSpriteTemplate_EnemyShadow,
                                                                                     GetBattlerSpriteCoord(battlerId, BATTLER_COORD_X),
-                                                                                    GetBattlerSpriteCoord(battlerId, BATTLER_COORD_Y) + 25,
+                                                                                    GetBattlerSpriteCoord(battlerId, BATTLER_COORD_Y) + 29,
                                                                                     0xC8);
     gSprites[gBattleSpritesDataPtr->healthBoxesData[battlerId].shadowSpriteId].data[0] = battlerId;
 
@@ -1124,7 +1124,7 @@ void LoadAndCreateEnemyShadowSprites(void)
         battlerId = GetBattlerAtPosition(B_POSITION_OPPONENT_RIGHT);
         gBattleSpritesDataPtr->healthBoxesData[battlerId].shadowSpriteId = CreateSprite(&gSpriteTemplate_EnemyShadow,
                                                                                         GetBattlerSpriteCoord(battlerId, BATTLER_COORD_X),
-                                                                                        GetBattlerSpriteCoord(battlerId, BATTLER_COORD_Y) + 25,
+                                                                                        GetBattlerSpriteCoord(battlerId, BATTLER_COORD_Y) + 29,
                                                                                         0xC8);
         gSprites[gBattleSpritesDataPtr->healthBoxesData[battlerId].shadowSpriteId].data[0] = battlerId;
     }
