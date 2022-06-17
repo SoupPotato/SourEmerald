@@ -1052,10 +1052,10 @@ void GetBattlerHealthboxCoords(u8 battler, s16 *x, s16 *y)
             *x = 171, *y = 101;
             break;
         case B_POSITION_OPPONENT_LEFT:
-            *x = 44, *y = 19;
+            *x = 44, *y = 15;
             break;
         case B_POSITION_OPPONENT_RIGHT:
-            *x = 32, *y = 44;
+            *x = 32, *y = 40;
             break;
         }
     }
