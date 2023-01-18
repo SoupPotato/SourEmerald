@@ -141,7 +141,7 @@ static const struct OamData sOamData_FallingFossil =
     .size = SPRITE_SIZE(16x16),
     .tileNum = 0,
     .priority = 0,
-    .paletteNum = 3,
+    .paletteNum = 2,
     .affineParam = 0,
 };
 
@@ -451,14 +451,14 @@ static void CreateCeilingCrumbleSprites(void)
     {
         spriteId = CreateSprite(&sSpriteTemplate_CeilingCrumbleLarge, sCeilingCrumblePositions[i][0] + 120, sCeilingCrumblePositions[i][1], 8);
         gSprites[spriteId].oam.priority = 0;
-        gSprites[spriteId].oam.paletteNum = 0;
+        gSprites[spriteId].oam.paletteNum = 2;
         gSprites[spriteId].data[0] = i;
     }
     for (i = 0; i < 8; i++)
     {
         spriteId = CreateSprite(&sSpriteTemplate_CeilingCrumbleSmall, sCeilingCrumblePositions[i][0] + 115, sCeilingCrumblePositions[i][1] - 3, 8);
         gSprites[spriteId].oam.priority = 0;
-        gSprites[spriteId].oam.paletteNum = 0;
+        gSprites[spriteId].oam.paletteNum = 2;
         gSprites[spriteId].data[0] = i;
     }
 }
