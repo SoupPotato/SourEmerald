@@ -393,7 +393,6 @@ LittlerootTown_EventScript_GoSaveBirchTrigger::
 	end
 
 LittlerootTown_EventScript_TownSign::
-	setflag FLAG_SYS_DEXNAV_GET
 	msgbox LittlerootTown_Text_TownSign, MSGBOX_SIGN
 	end
 
