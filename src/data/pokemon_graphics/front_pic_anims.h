@@ -2178,8 +2178,6 @@ static const union AnimCmd sAnim_MARILL_1[] =
     ANIMCMD_FRAME(0, 20),
     ANIMCMD_FRAME(1, 44),
     ANIMCMD_FRAME(0, 22),
-    ANIMCMD_FRAME(1, 44),
-    ANIMCMD_FRAME(0, 11),
     ANIMCMD_END,
 };
 
@@ -4168,8 +4166,6 @@ static const union AnimCmd sAnim_ARON_1[] =
 {
     ANIMCMD_FRAME(0, 33),
     ANIMCMD_FRAME(1, 44),
-    ANIMCMD_FRAME(0, 33),
-    ANIMCMD_FRAME(1, 33),
     ANIMCMD_FRAME(0, 11),
     ANIMCMD_END,
 };

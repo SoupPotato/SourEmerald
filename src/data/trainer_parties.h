@@ -4724,12 +4724,12 @@ static const struct TrainerMonNoItemDefaultMoves sParty_Ronald[] = {
 static const struct TrainerMonNoItemDefaultMoves sParty_Jacob[] = {
     {
     .iv = 20,
-    .lvl = 6,
+    .lvl = 12,
     .species = SPECIES_VOLTORB,
     },
     {
     .iv = 20,
-    .lvl = 6,
+    .lvl = 14,
     .species = SPECIES_VOLTORB,
     },
     {
@@ -4813,7 +4813,7 @@ static const struct TrainerMonNoItemDefaultMoves sParty_Jasmine[] = {
     },
     {
     .iv = 0,
-    .lvl = 6,
+    .lvl = 14,
     .species = SPECIES_VOLTORB,
     }
 };

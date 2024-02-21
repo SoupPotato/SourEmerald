@@ -367,7 +367,7 @@ const struct MonCoords gMonFrontPicCoords[] =
     [SPECIES_TENTACOOL] =
     {
         .size = MON_COORDS_SIZE(32, 48),
-        .y_offset = 17,
+        .y_offset = 9,
     },
     [SPECIES_TENTACRUEL] =
     {
@@ -377,7 +377,7 @@ const struct MonCoords gMonFrontPicCoords[] =
     [SPECIES_GEODUDE] =
     {
         .size = MON_COORDS_SIZE(40, 32),
-        .y_offset = 18,
+        .y_offset = 9,
     },
     [SPECIES_GRAVELER] =
     {
@@ -652,7 +652,7 @@ const struct MonCoords gMonFrontPicCoords[] =
     [SPECIES_MAGIKARP] =
     {
         .size = MON_COORDS_SIZE(48, 56),
-        .y_offset = 13,
+        .y_offset = 10,
     },
     [SPECIES_GYARADOS] =
     {
