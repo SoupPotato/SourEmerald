@@ -199,7 +199,7 @@ extern struct UnusedControllerStruct gUnusedControllerStruct;
 
 // general functions
 void HandleLinkBattleSetup(void);
-void SetUpBattleVarsAndBirchZigzagoon(void);
+void SetUpBattleVarsAndBirchPoochyena(void);
 void InitBattleControllers(void);
 bool32 IsValidForBattle(struct Pokemon *mon);
 void TryReceiveLinkBattleData(void);

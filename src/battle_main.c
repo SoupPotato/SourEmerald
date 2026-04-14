@@ -543,7 +543,7 @@ static void CB2_InitBattleInternal(void)
     FreeAllSpritePalettes();
     gReservedSpritePaletteCount = 4;
     SetVBlankCallback(VBlankCB_Battle);
-    SetUpBattleVarsAndBirchZigzagoon();
+    SetUpBattleVarsAndBirchPoochyena();
 
     if (gBattleTypeFlags & BATTLE_TYPE_MULTI && gBattleTypeFlags & BATTLE_TYPE_BATTLE_TOWER)
         SetMainCallback2(CB2_HandleStartMultiPartnerBattle);

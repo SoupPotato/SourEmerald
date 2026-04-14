@@ -1037,7 +1037,7 @@ void GetBattlerHealthboxCoords(u8 battler, s16 *x, s16 *y)
     if (!IsDoubleBattle())
     {
         if (GetBattlerSide(battler) != B_SIDE_PLAYER)
-            *x = 44, *y = 26;
+            *x = 44, *y = 30;
         else
             *x = 158, *y = 88;
     }
@@ -1052,10 +1052,10 @@ void GetBattlerHealthboxCoords(u8 battler, s16 *x, s16 *y)
             *x = 171, *y = 101;
             break;
         case B_POSITION_OPPONENT_LEFT:
-            *x = 44, *y = 15;
+            *x = 44, *y = 19;
             break;
         case B_POSITION_OPPONENT_RIGHT:
-            *x = 32, *y = 40;
+            *x = 32, *y = 44;
             break;
         }
     }
