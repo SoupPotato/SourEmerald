@@ -3674,10 +3674,10 @@ static const struct LevelUpMove sBellossomLevelUpLearnset[] = {
 
 static const struct LevelUpMove sMarillLevelUpLearnset[] = {
     LEVEL_UP_MOVE( 1, MOVE_TACKLE),
-    LEVEL_UP_MOVE( 1, MOVE_WATER_GUN),
+    LEVEL_UP_MOVE( 1, MOVE_BUBBLE),
     LEVEL_UP_MOVE( 2, MOVE_TAIL_WHIP),
     LEVEL_UP_MOVE( 5, MOVE_WATER_SPORT),
-    LEVEL_UP_MOVE( 7, MOVE_BUBBLE),
+    LEVEL_UP_MOVE( 7, MOVE_WATER_GUN),
     LEVEL_UP_MOVE(10, MOVE_DEFENSE_CURL),
     LEVEL_UP_MOVE(10, MOVE_ROLLOUT),
     LEVEL_UP_MOVE(13, MOVE_BUBBLE_BEAM),
@@ -3694,12 +3694,12 @@ static const struct LevelUpMove sMarillLevelUpLearnset[] = {
 
 static const struct LevelUpMove sAzumarillLevelUpLearnset[] = {
     LEVEL_UP_MOVE( 1, MOVE_TACKLE),
-    LEVEL_UP_MOVE( 1, MOVE_WATER_GUN),
+    LEVEL_UP_MOVE( 1, MOVE_BUBBLE),
     LEVEL_UP_MOVE( 1, MOVE_TAIL_WHIP),
     LEVEL_UP_MOVE( 1, MOVE_WATER_SPORT),
     LEVEL_UP_MOVE( 2, MOVE_TAIL_WHIP),
     LEVEL_UP_MOVE( 5, MOVE_WATER_SPORT),
-    LEVEL_UP_MOVE( 7, MOVE_BUBBLE),
+    LEVEL_UP_MOVE( 7, MOVE_WATER_GUN),
     LEVEL_UP_MOVE(10, MOVE_DEFENSE_CURL),
     LEVEL_UP_MOVE(10, MOVE_ROLLOUT),
     LEVEL_UP_MOVE(13, MOVE_BUBBLE_BEAM),
@@ -6114,10 +6114,10 @@ static const struct LevelUpMove sHariyamaLevelUpLearnset[] = {
 
 static const struct LevelUpMove sAzurillLevelUpLearnset[] = {
     LEVEL_UP_MOVE( 1, MOVE_SPLASH),
-    LEVEL_UP_MOVE( 1, MOVE_WATER_GUN),
+    LEVEL_UP_MOVE( 1, MOVE_BUBBLE),
     LEVEL_UP_MOVE( 2, MOVE_TAIL_WHIP),
     LEVEL_UP_MOVE( 5, MOVE_WATER_SPORT),
-    LEVEL_UP_MOVE( 7, MOVE_BUBBLE),
+    LEVEL_UP_MOVE( 7, MOVE_WATER_GUN),
     LEVEL_UP_MOVE(10, MOVE_CHARM),
     LEVEL_UP_MOVE(13, MOVE_BUBBLE_BEAM),
     LEVEL_UP_MOVE(16, MOVE_HELPING_HAND),
