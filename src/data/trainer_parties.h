@@ -9898,7 +9898,7 @@ static const struct TrainerMonNoItemDefaultMoves sParty_MaxieMossdeep[] = {
 static const struct TrainerMonNoItemDefaultMoves sParty_Pete[] = {
     {
     .iv = 0,
-    .lvl = 15,
+    .lvl = 25,
     .species = SPECIES_TENTACOOL,
     }
 };
@@ -9906,7 +9906,7 @@ static const struct TrainerMonNoItemDefaultMoves sParty_Pete[] = {
 static const struct TrainerMonNoItemDefaultMoves sParty_Isabelle[] = {
     {
     .iv = 0,
-    .lvl = 15,
+    .lvl = 25,
     .species = SPECIES_MARILL,
     }
 };
