@@ -1124,22 +1124,6 @@ static void Task_DexNavSearch(u8 taskId)
         return;
     }
 
-    //Caves and water the pokemon moves around
-    if ((sDexNavSearchDataPtr->environment == ENCOUNTER_TYPE_WATER || GetCurrentMapType() == MAP_TYPE_UNDERGROUND)
-        && sDexNavSearchDataPtr->proximity < GetMovementProximityBySearchLevel() && sDexNavSearchDataPtr->movementCount < 2
-        && task->tRevealed)
-    {
-        bool8 ret;
-
-        FieldEffectStop(&gSprites[sDexNavSearchDataPtr->fldEffSpriteId], sDexNavSearchDataPtr->fldEffId);
-        while (1) {
-            if (TryStartHiddenMonFieldEffect(sDexNavSearchDataPtr->environment, 10, 10, TRUE))
-                break;
-        }
-
-        sDexNavSearchDataPtr->movementCount++;
-    }
-
     DexNavProximityUpdate();
     if (task->tProximity != sDexNavSearchDataPtr->proximity)
     {
