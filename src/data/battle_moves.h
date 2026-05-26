@@ -1364,7 +1364,7 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
     [MOVE_THUNDER_WAVE] =
     {
         #if B_UPDATED_MOVE_DATA >= GEN_7
-            .accuracy = 90,
+            .accuracy = 100,
         #else
             .accuracy = 100,
         #endif
@@ -3291,7 +3291,7 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
     [MOVE_SWAGGER] =
     {
         #if B_UPDATED_MOVE_DATA >= GEN_7
-            .accuracy = 85,
+            .accuracy = 90,
         #else
             .accuracy = 90,
         #endif
@@ -3336,9 +3336,7 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
 
     [MOVE_FURY_CUTTER] =
     {
-        #if B_UPDATED_MOVE_DATA >= GEN_6
-            .power = 40,
-        #elif B_UPDATED_MOVE_DATA == GEN_5
+        #if B_UPDATED_MOVE_DATA >= GEN_5
             .power = 20,
         #else
             .power = 10,
@@ -6179,7 +6177,7 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
     [MOVE_SUCKER_PUNCH] =
     {
         #if B_UPDATED_MOVE_DATA >= GEN_7
-            .power = 70,
+            .power = 80,
         #else
             .power = 80,
         #endif
@@ -7347,7 +7345,7 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
     [MOVE_DARK_VOID] =
     {
         #if B_UPDATED_MOVE_DATA >= GEN_7
-            .accuracy = 50,
+            .accuracy = 80,
         #else
             .accuracy = 80,
         #endif
