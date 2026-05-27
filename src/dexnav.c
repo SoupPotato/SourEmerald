@@ -2662,36 +2662,35 @@ static void DexNavDrawHiddenIcons(void)
 /////////////////////////
 bool8 DexNavTryMakeShinyMon(void)
 {
-    u32 i, shinyRolls, chainBonus, rndBonus;
     u32 shinyRate = 0;
     u32 charmBonus = 0;
+    u32 extraRolls = 0;
+    u32 rndBonus = 0;
+    u32 shinyRolls = 0;
+    u32 i;
+    
     u8 searchLevel = sDexNavSearchDataPtr->searchLevel;
     u8 chain = gSaveBlock1Ptr->dexNavChain;
 
-    #ifdef ITEM_SHINY_CHARM
-    charmBonus = (CheckBagHasItem(ITEM_SHINY_CHARM, 1) > 0) ? 2 : 0;
-    #endif
+#ifdef ITEM_SHINY_CHARM
+    if (CheckBagHasItem(ITEM_SHINY_CHARM, 1))
+        charmBonus = 2;
+#endif
 
-    chainBonus = (chain == 50) ? 5 : (chain == 100) ? 10 : 0;
-    rndBonus = (Random() % 100 < 4 ? 4 : 0);
-    shinyRolls = 1 + charmBonus + chainBonus + rndBonus;
+    // === LINEAR SCALING - SL 200 = 1 in 100 ===
+    shinyRate += searchLevel / 2;        // +0.5 per Search Level
+    shinyRate += chain * 2;              // +2 per Chain level
 
-    if (searchLevel > 200)
-    {
-        shinyRate += searchLevel - 200;
-        searchLevel = 200;
-    }
-    if (searchLevel > 100)
-    {
-        shinyRate += (searchLevel * 2) - 200;
-        searchLevel = 100;
-    }
-    if (searchLevel > 0)
-    {
-        shinyRate += searchLevel * 6;
-    }
+    // Extra rolls
+    extraRolls = charmBonus;
+    if (chain >= 50)  extraRolls += 1;
+    if (chain >= 100) extraRolls += 1;
 
-    shinyRate /= 100;
+    rndBonus = (Random() % 100 < 4) ? 2 : 0;
+
+    shinyRolls = 1 + extraRolls + rndBonus;
+
+    // Perform shiny rolls
     for (i = 0; i < shinyRolls; i++)
     {
         if (Random() % 10000 < shinyRate)
