@@ -858,7 +858,8 @@ static void Task_InitDexNavSearch(u8 taskId)
     sDexNavSearchDataPtr->isHiddenMon = (environment == ENCOUNTER_TYPE_HIDDEN) ? TRUE : FALSE;
     sDexNavSearchDataPtr->monLevel = DexNavTryGenerateMonLevel(species, environment);
 
-    if (GetFlashLevel() > 0)
+    // === FIXED: Only block if it's dark AND Flash is NOT active ===
+    if (gMapHeader.mapType == MAP_TYPE_UNDERGROUND && GetFlashLevel() == 7)
     {
         Free(sDexNavSearchDataPtr);
         FreeMonIconPalettes();
@@ -2677,9 +2678,9 @@ bool8 DexNavTryMakeShinyMon(void)
         charmBonus = 2;
 #endif
 
-    // === LINEAR SCALING - SL 200 = 1 in 100 ===
-    shinyRate += searchLevel / 2;        // +0.5 per Search Level
-    shinyRate += chain * 2;              // +2 per Chain level
+    // === LINEAR SCALING - SL 50 = 1 in 100 ===
+    shinyRate += searchLevel * 2;        // +2 per Search Level → SL 50 = 100
+    shinyRate += chain * 2;              // +2 per Chain level (temporary)
 
     // Extra rolls
     extraRolls = charmBonus;
