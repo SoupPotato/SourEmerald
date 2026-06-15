@@ -1667,7 +1667,7 @@ const struct MonCoords gMonBackPicCoords[] =
     [SPECIES_TRAPINCH] =
     {
         .size = MON_COORDS_SIZE(56, 40),
-        .y_offset = 14,
+        .y_offset = 0,
     },
     [SPECIES_VIBRAVA] =
     {
